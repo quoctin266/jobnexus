@@ -1,4 +1,4 @@
-name: ASP.NET CI/CD
+﻿name: ASP.NET CI/CD
 
 on:
   push:
@@ -6,34 +6,40 @@ on:
 
 jobs:
   build:
-    name: Build Asp.Net Project And Docker Image
+    name: Build Asp.Net Project And Run EF Migrations
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v3
-      #   with:
-      #     node-version: '18.x'
-      #     cache: 'npm'
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
 
-      # - name: Install dependencies
-      #   run: npm ci
+      - name: Restore dependencies
+        run: dotnet restore
 
-      # - name: Create env
-      #   run: |
-      #     touch .production.env
-      #     echo "${{ secrets.PROD_ENV_FILE }}" > .production.env
+      - name: Build project
+        run: dotnet build --no-restore
 
-      # - name: Build NestJS project
-      #   run: |
-      #     npm run buildCICD
-      #     if [ $? -ne 0 ]; then exit 1; fi
+      - name: Run EF Core Migrations
+        env:
+          ConnectionStrings__DefaultConnection: ${{ secrets.PROD_CONNECTION_STRING }}
+        run: |
+          echo "Running EF migrations..."
+          dotnet tool install --global dotnet-ef
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet ef database update --connection "$ConnectionStrings__DefaultConnection"
 
+  containerize:
+    needs: build
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Build and Push Docker Image
-        if: ${{ failure() == false }}
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           image: quoctin266/jobnexus
@@ -43,7 +49,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
   deploy:
-    name: Deploy
+    needs: containerize
+    name: Deploy to Production
     runs-on: ubuntu-latest
 
     steps:
