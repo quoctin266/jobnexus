@@ -1,0 +1,54 @@
+name: ASP.NET CI/CD
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  build:
+    name: Build Asp.Net Project And Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: '18.x'
+      #     cache: 'npm'
+
+      # - name: Install dependencies
+      #   run: npm ci
+
+      # - name: Create env
+      #   run: |
+      #     touch .production.env
+      #     echo "${{ secrets.PROD_ENV_FILE }}" > .production.env
+
+      # - name: Build NestJS project
+      #   run: |
+      #     npm run buildCICD
+      #     if [ $? -ne 0 ]; then exit 1; fi
+
+      - name: Build and Push Docker Image
+        if: ${{ failure() == false }}
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          image: quoctin266/jobnexus
+          tags: latest
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to production
+        uses: johnbeynon/render-deploy-action@v0.0.8
+        with:
+          service-id: ${{ secrets.SERVICE_ID }}
+          api-key: ${{ secrets.RENDER_API_KEY }}
