@@ -1,0 +1,6 @@
+@JobNexus_HostAddress = http://localhost:5188
+
+GET {{JobNexus_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
