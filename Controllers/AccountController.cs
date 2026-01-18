@@ -1,5 +1,5 @@
 ﻿using JobNexus.Common.Enum;
-using JobNexus.Dtos.Account;
+using JobNexus.Dtos.Auth;
 using JobNexus.Interfaces;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Authorization;

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace JobNexus.Dtos.Account
+namespace JobNexus.Dtos.Auth
 {
     public class RegisterDto
     {

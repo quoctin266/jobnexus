@@ -26,5 +26,10 @@ namespace JobNexus.Repository
         {
             return await _userManager.CreateAsync(user, password);
         }
+
+        public async Task<AppUser?> GetByIdAsync(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
     }
 }

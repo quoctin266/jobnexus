@@ -9,5 +9,8 @@ namespace JobNexus.Interfaces
         Task<IdentityResult> CreateUserAsync(AppUser user, string password);
 
         Task<IdentityResult> AddRoleToUserAsync(AppUser user, Role role);
+
+        Task<AppUser?> GetByIdAsync(string id);
+
     }
 }
