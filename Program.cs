@@ -1,5 +1,6 @@
 using JobNexus.Data;
 using JobNexus.Extensions;
+using JobNexus.Helpers.Filters;
 using JobNexus.Helpers.Interceptors;
 using JobNexus.Seed;
 using Microsoft.EntityFrameworkCore;
@@ -9,16 +10,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler =
-        ReferenceHandler.IgnoreCycles;
-}); ;
+builder.Services.AddControllers(options => options.Filters.Add<ResponseFilter>())
+                .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 // Connect to DB
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
            .AddInterceptors(new TimestampInterceptor()));
+
+// Customize error responses
+builder.Services.AddCustomErrorResponse();
 
 // Configure Identity   
 builder.Services.AddIdentityAuth();

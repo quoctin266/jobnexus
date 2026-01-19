@@ -1,9 +1,15 @@
 ﻿using JobNexus.Common.Enum;
 using JobNexus.Dtos.Auth;
+using JobNexus.Dtos.User;
+using JobNexus.Helpers.Attributes;
+using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces;
+using JobNexus.Mappers;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using static JobNexus.Helpers.Utils.MyFunctions;
 
 namespace JobNexus.Controllers
 {
@@ -23,8 +29,8 @@ namespace JobNexus.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        //[ResponseMessage(message: "Register successfully")]
-        public async Task<ActionResult> Register([FromBody] RegisterDto registerDto)
+        [ResponseMessage(message: "Register successfully")]
+        public async Task<ActionResult<DataResponse<UserDto>>> Register([FromBody] RegisterDto registerDto)
         {
             var user = new AppUser
             {
@@ -39,17 +45,13 @@ namespace JobNexus.Controllers
                 var roleResult = await _accountRepository.AddRoleToUserAsync(user, Role.User);
                 if (roleResult.Succeeded)
                 {
-                    return StatusCode(StatusCodes.Status201Created, new
-                    {
-                        username = user.UserName,
-                        email = user.Email,
-                    });
+                    return StatusCode(StatusCodes.Status201Created, user.ToUserDto());
                 }
 
                 return StatusCode(500, roleResult.Errors);
             }
 
-            return new BadRequestObjectResult(createdUser.Errors);
+            return new BadRequestObjectResult(ToErrorResponse(createdUser.Errors));
         }
 
     }
