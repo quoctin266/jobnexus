@@ -48,5 +48,21 @@ namespace JobNexus.Repository
 
             return user;
         }
+
+        public async Task<AppUser?> DeleteAsync(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if(user != null)
+            {
+                var result = await _userManager.DeleteAsync(user);
+                if (!result.Succeeded) {
+                    Console.WriteLine("Failed to delete user:", result.Errors);
+
+                    return null;
+                };
+            }
+
+            return user;
+        }
     }
 }

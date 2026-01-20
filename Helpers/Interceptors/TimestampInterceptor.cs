@@ -29,21 +29,21 @@ namespace JobNexus.Helpers.Interceptors
         {
             var context = eventData.Context;
 
-            if(context != null)
+            if (context == null) return;
+            
+            foreach (var entry in context.ChangeTracker.Entries<IEntityTimestamps>())
             {
-                foreach (var entry in context.ChangeTracker.Entries<IEntityTimestamps>())
+                if (entry.State == EntityState.Added)
                 {
-                    if (entry.State == EntityState.Added)
-                    {
-                        entry.Entity.CreatedAt = DateTime.UtcNow;
-                        entry.Entity.UpdatedAt = DateTime.UtcNow;
-                    }
-                    else if (entry.State == EntityState.Modified)
-                    {
-                        entry.Entity.UpdatedAt = DateTime.UtcNow;
-                    }
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
                 }
             }
+            
         }
     }
 }

@@ -55,5 +55,23 @@ namespace JobNexus.Controllers
 
             return Ok(user.ToUserDto());
         }
+
+        [AllowAnonymous]
+        [HttpDelete("{id}")]
+        [ResponseMessage(message: "Delete user successfully")]
+        public async Task<ActionResult<DataResponse<UserDto>>> Delete([FromRoute] string id)
+        {
+            var user = await _accountRepository.DeleteAsync(id);
+            if (user == null)
+            {
+                return new NotFoundObjectResult(new ErrorResponse()
+                {
+                    Error = "Not Found",
+                    Messages = ["User not found with provided id"]
+                });
+            }
+
+            return Ok(user.ToUserDto());
+        }
     }
 }

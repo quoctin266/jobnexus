@@ -1,7 +1,6 @@
 using JobNexus.Data;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Filters;
-using JobNexus.Helpers.Interceptors;
 using JobNexus.Seed;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -15,8 +14,7 @@ builder.Services.AddControllers(options => options.Filters.Add<ResponseFilter>()
 
 // Connect to DB
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-           .AddInterceptors(new TimestampInterceptor()));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Customize error responses
 builder.Services.AddCustomErrorResponse();
