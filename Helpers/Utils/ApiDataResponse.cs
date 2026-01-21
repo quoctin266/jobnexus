@@ -1,6 +1,6 @@
 ﻿namespace JobNexus.Helpers.Utils
 {
-    public class DataResponse<T>
+    public class ApiDataResponse<T>
     {
         public int statusCode { get; set; }
 

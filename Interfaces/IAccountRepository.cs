@@ -16,5 +16,9 @@ namespace JobNexus.Interfaces
         Task<AppUser?> GetByIdAsync(string id);
 
         Task<AppUser?> DeleteAsync(string id);
+
+        Task<AppUser?> GetByEmailAsync(string email);
+
+        Task<SignInResult> CheckPasswordAsync(AppUser user, string password);
     }
 }

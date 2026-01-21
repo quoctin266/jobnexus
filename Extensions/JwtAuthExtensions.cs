@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using JobNexus.Helpers.Utils;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -28,6 +29,41 @@ namespace JobNexus.Extensions
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(configuration["JWT:SigningKey"]!)
                     )
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+
+                        var response = new ApiErrorResponse()
+                        {
+                            statusCode = StatusCodes.Status401Unauthorized,
+                            message = ["No or Invalid Token"],
+                            error = "Authorization failed"
+                        };
+
+                        return context.Response.WriteAsJsonAsync(response);
+                    },
+                    
+                    OnForbidden = context =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+
+                        var response = new ApiErrorResponse()
+                        {
+                            statusCode = StatusCodes.Status403Forbidden,
+                            message = ["Cannot access this resource"],
+                            error = "No permission"
+                        };
+
+                        return context.Response.WriteAsJsonAsync(response);
+                    }
                 };
             });
 

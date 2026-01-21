@@ -20,10 +20,10 @@ namespace JobNexus.Controllers
             _accountRepository = accountRepository;
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin, User")]
         [HttpGet("{id}")]
         [ResponseMessage(message: "Fetch user info successfully")]
-        public async Task<ActionResult<DataResponse<UserDto>>> GetById([FromRoute] string id)
+        public async Task<ActionResult<ApiDataResponse<UserDto>>> GetById([FromRoute] string id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
             if(user == null)
@@ -38,10 +38,10 @@ namespace JobNexus.Controllers
             return Ok(user.ToUserDto());
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin, User")]
         [HttpPut("{id}")]
         [ResponseMessage(message: "Update user successfully")]
-        public async Task<ActionResult<DataResponse<UserDto>>> Update([FromRoute] string id, [FromBody] UpdateUserDto updateUserDto)
+        public async Task<ActionResult<ApiDataResponse<UserDto>>> Update([FromRoute] string id, [FromBody] UpdateUserDto updateUserDto)
         {
             var user = await _accountRepository.UpdateUserAsync(id, updateUserDto);
             if (user == null)
@@ -56,10 +56,10 @@ namespace JobNexus.Controllers
             return Ok(user.ToUserDto());
         }
 
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         [ResponseMessage(message: "Delete user successfully")]
-        public async Task<ActionResult<DataResponse<UserDto>>> Delete([FromRoute] string id)
+        public async Task<ActionResult<ApiDataResponse<UserDto>>> Delete([FromRoute] string id)
         {
             var user = await _accountRepository.DeleteAsync(id);
             if (user == null)

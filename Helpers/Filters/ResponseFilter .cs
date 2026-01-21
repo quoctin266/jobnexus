@@ -40,11 +40,11 @@ namespace JobNexus.Helpers.Filters
 
                 if (statusCode >= 400 && statusCode < 500)
                 {
-                    context.Result = new ObjectResult(new
+                    context.Result = new ObjectResult(new ApiErrorResponse()
                     {
-                        statusCode,
-                        message = (objectResult.Value as ErrorResponse)?.Messages,
-                        error = (objectResult.Value as ErrorResponse)?.Error
+                        statusCode = statusCode,
+                        message = (objectResult.Value as ErrorResponse)?.Messages ?? [],
+                        error = (objectResult.Value as ErrorResponse)?.Error ?? ""
                     })
                     {
                         StatusCode =statusCode

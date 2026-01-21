@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using JobNexus.Helpers.Utils;
+using Microsoft.AspNetCore.Mvc;
 
 namespace JobNexus.Extensions
 {
@@ -14,9 +15,9 @@ namespace JobNexus.Extensions
                         .Where(e => e.Value!.Errors.Count > 0)
                         .SelectMany(e => e.Value!.Errors)
                         .Select(e => e.ErrorMessage)
-                        .ToArray();
+                        .ToList();
 
-                    return new BadRequestObjectResult(new
+                    return new BadRequestObjectResult(new ApiErrorResponse()
                     {
                         statusCode = StatusCodes.Status400BadRequest,
                         message = messages,

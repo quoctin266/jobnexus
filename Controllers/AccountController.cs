@@ -30,7 +30,7 @@ namespace JobNexus.Controllers
         [AllowAnonymous]
         [HttpPost("register")]
         [ResponseMessage(message: "Register successfully")]
-        public async Task<ActionResult<DataResponse<UserDto>>> Register([FromBody] RegisterDto registerDto)
+        public async Task<ActionResult<ApiDataResponse<UserDto>>> Register([FromBody] RegisterDto registerDto)
         {
             var user = new AppUser
             {
@@ -54,5 +54,32 @@ namespace JobNexus.Controllers
             return new BadRequestObjectResult(ToErrorResponse(createdUser.Errors));
         }
 
+        [AllowAnonymous]
+        [HttpPost("login")]
+        [ResponseMessage(message: "Login successfully")]
+        public async Task<ActionResult<ApiDataResponse<LoginResponseDto>>> Login([FromBody] LoginDto loginDto)
+        {
+            var unauthorizedResponse = new ErrorResponse()
+            {
+                Error = "Authorization failed",
+                Messages = ["Invalid email/password"],
+            };
+
+            var user = await _accountRepository.GetByEmailAsync(loginDto.Email);
+
+            if (user == null) return new UnauthorizedObjectResult(unauthorizedResponse);
+
+            var result = await _accountRepository.CheckPasswordAsync(user, loginDto.Password);
+
+            if (!result.Succeeded) return new UnauthorizedObjectResult(unauthorizedResponse);
+
+            var response = new LoginResponseDto
+            {
+                AccessToken = await _tokenService.CreateToken(user, TokenType.AccessToken),
+                RefreshToken = await _tokenService.CreateToken(user, TokenType.RefreshToken),
+            };
+
+            return StatusCode(StatusCodes.Status201Created, response);
+        }
     }
 }

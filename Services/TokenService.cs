@@ -55,7 +55,7 @@ namespace JobNexus.Services
 
             if (tokenType == TokenType.RefreshToken)
             {
-                tokenDescriptor.Expires = DateTime.Now.AddDays(7);
+                tokenDescriptor.Expires = DateTime.Now.AddDays(1);
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();

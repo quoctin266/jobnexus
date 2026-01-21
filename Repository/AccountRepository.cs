@@ -3,6 +3,7 @@ using JobNexus.Dtos.User;
 using JobNexus.Interfaces;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace JobNexus.Repository
 {
@@ -31,6 +32,16 @@ namespace JobNexus.Repository
         public async Task<AppUser?> GetByIdAsync(string id)
         {
             return await _userManager.FindByIdAsync(id);
+        }
+
+        public async Task<AppUser?> GetByEmailAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+        public async Task<SignInResult> CheckPasswordAsync(AppUser user, string password)
+        {
+            return await _signInManager.CheckPasswordSignInAsync(user, password, false);
         }
 
         public async Task<AppUser?> UpdateUserAsync(string id, UpdateUserDto updateUserDto)
@@ -64,5 +75,7 @@ namespace JobNexus.Repository
 
             return user;
         }
+
+
     }
 }
