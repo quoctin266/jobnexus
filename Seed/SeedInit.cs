@@ -1,4 +1,5 @@
-﻿using JobNexus.Models;
+﻿using JobNexus.Common.Enum;
+using JobNexus.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace JobNexus.Seed
@@ -13,26 +14,26 @@ namespace JobNexus.Seed
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
-            var roles = new[] { "Admin", "User" };
+            var roles = new[] { Role.Admin, Role.User, Role.Employer };
 
             foreach (var role in roles)
             {
-                if (!await roleManager.RoleExistsAsync(role))
+                if (!await roleManager.RoleExistsAsync(role.ToString()))
                 {
-                    var result = await roleManager.CreateAsync(new IdentityRole(role));
-                    if (result.Succeeded && role == "Admin")
+                    var result = await roleManager.CreateAsync(new IdentityRole(role.ToString()));
+                    if (result.Succeeded && role == Role.Admin)
                     {
-                        await CreateAdminAsync(userManager, role, configuration);
+                        await CreateAdminAsync(userManager, configuration);
                     }
                 }
-                else if (role == "Admin")
+                else if (role == Role.Admin)
                 {
-                    await CreateAdminAsync(userManager, role, configuration);
+                    await CreateAdminAsync(userManager, configuration);
                 }
             }
         }
 
-        public static async Task CreateAdminAsync(UserManager<AppUser> userManager, string role, IConfiguration configuration)
+        public static async Task CreateAdminAsync(UserManager<AppUser> userManager, IConfiguration configuration)
         {
             var username = configuration["Admin:Username"]!;
             var email = configuration["Admin:Email"]!;
@@ -48,7 +49,7 @@ namespace JobNexus.Seed
 
                 var result = await userManager.CreateAsync(admin, password);
 
-                if (result.Succeeded) await userManager.AddToRoleAsync(admin, role);
+                if (result.Succeeded) await userManager.AddToRoleAsync(admin, Role.Admin.ToString());
             }
 
         }
