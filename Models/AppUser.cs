@@ -5,7 +5,9 @@ namespace JobNexus.Models
 {
     public class AppUser : IdentityUser, IEntityTimestamps, ISoftDelete
     {
-        public int Age { get; set; }
+        public DateTime DateOfBirth { get; set; }
+
+        public string Gender { get; set; } = "";
 
         public string Address { get; set; } = "";
 

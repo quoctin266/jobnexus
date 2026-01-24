@@ -12,7 +12,8 @@ namespace JobNexus.Mappers
                 Id = appUser.Id,
                 Email = appUser.Email ?? "",
                 Username = appUser.UserName ?? "",
-                Age = appUser.Age,
+                DateOfBirth = appUser.DateOfBirth,
+                Gender = appUser.Gender,
                 Address = appUser.Address,
                 PhoneNumber = appUser.PhoneNumber ?? ""
             };

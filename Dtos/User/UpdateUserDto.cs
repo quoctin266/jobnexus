@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using JobNexus.Common.Enum;
+using JobNexus.Helpers.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace JobNexus.Dtos.User
 {
@@ -9,8 +11,12 @@ namespace JobNexus.Dtos.User
         public string Username { get; set; } = "";
 
         [Required]
-        [Range(16, 100)]
-        public int Age { get; set; }
+        [Iso8601Date(ErrorMessage = "DateOfBirth must be a valid ISO 8601 string.")]
+        public string DateOfBirth { get; set; } = "";
+
+        [Required]
+        [ValidEnum(typeof(Gender), ErrorMessage = "Invalid gender value.")]
+        public string Gender { get; set; } = "";
 
         [Required]
         [MaxLength(250, ErrorMessage = "Address cannot exceed 250 characters.")]

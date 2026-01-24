@@ -3,7 +3,7 @@ using JobNexus.Dtos.User;
 using JobNexus.Interfaces;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace JobNexus.Repository
 {
@@ -50,7 +50,8 @@ namespace JobNexus.Repository
             if(user != null)
             {
                 user.UserName = updateUserDto.Username;
-                user.Age = updateUserDto.Age;
+                user.DateOfBirth = DateTime.Parse(updateUserDto.DateOfBirth, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+                user.Gender = updateUserDto.Gender;
                 user.Address = updateUserDto.Address;
                 user.PhoneNumber = updateUserDto.PhoneNumber;
 
