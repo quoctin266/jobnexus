@@ -38,8 +38,7 @@ namespace JobNexus.Controllers
             return Ok(user.ToUserDto());
         }
 
-        //[Authorize(Roles = "Admin, User")]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin, User")]
         [HttpPut("{id}")]
         [ResponseMessage(message: "Update user successfully")]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> Update([FromRoute] string id, [FromBody] UpdateUserDto updateUserDto)

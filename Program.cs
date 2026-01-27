@@ -2,6 +2,7 @@ using JobNexus.Data;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Filters;
 using JobNexus.Seed;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -21,6 +22,12 @@ builder.Services.AddControllers(options => options.Filters.Add<ResponseFilter>()
 // Connect to DB
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Set the limit to 10 MB
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
+});
 
 // Customize error responses
 builder.Services.AddCustomErrorResponse();
