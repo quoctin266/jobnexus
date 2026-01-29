@@ -11,6 +11,8 @@ namespace JobNexus.Models
 
         public string Address { get; set; } = "";
 
+        public List<CompanyEmployee> CompanyEmployees { get; set; } = [];
+
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset UpdatedAt { get; set; }

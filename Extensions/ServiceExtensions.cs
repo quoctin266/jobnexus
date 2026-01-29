@@ -1,5 +1,6 @@
 ﻿using JobNexus.Interfaces;
 using JobNexus.Services;
+using JobNexus.Services.Business;
 
 namespace JobNexus.Extensions
 {
@@ -9,6 +10,9 @@ namespace JobNexus.Extensions
         {
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<IBlobStorageService, BlobStorageService>();
+
+            // business services
+            services.AddScoped<ICompanyRequestService, CompanyRequestService>();
 
             return services;
         }
