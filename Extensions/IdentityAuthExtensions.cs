@@ -23,17 +23,5 @@ namespace JobNexus.Extensions
 
             return services;
         }
-
-        public static IServiceCollection AddGlobalAuth(this IServiceCollection services)
-        {
-            services.AddAuthorization(options =>
-            {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-            });
-
-            return services;
-        }
     }
 }

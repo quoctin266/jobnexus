@@ -1,7 +1,9 @@
 using JobNexus.Data;
 using JobNexus.Extensions;
+using JobNexus.Helpers.Authorization;
 using JobNexus.Helpers.Filters;
 using JobNexus.Seed;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -37,6 +39,12 @@ builder.Services.AddIdentityAuth();
 
 // Enforce Global Authentication
 builder.Services.AddGlobalAuth();
+
+// Configure Authorization Policies
+builder.Services.AddAuthPolicy();
+
+// Register Authorization Handlers
+builder.Services.AddAuthHandler();
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);

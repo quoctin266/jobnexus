@@ -1,6 +1,8 @@
-﻿using JobNexus.Dtos.CompanyRequest;
+﻿using JobNexus.Common.Constant;
+using JobNexus.Dtos.CompanyRequest;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Attributes;
+using JobNexus.Helpers.Authorization;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces;
 using JobNexus.Mappers;
@@ -14,13 +16,14 @@ namespace JobNexus.Controllers
     public class CompanyRequestController : ControllerBase
     {
         private readonly ICompanyRequestService _companyRequestService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public CompanyRequestController(ICompanyRequestService companyRequestService)
+        public CompanyRequestController(ICompanyRequestService companyRequestService, IAuthorizationService authorizationService)
         {
             _companyRequestService = companyRequestService;
+            _authorizationService = authorizationService;
         }
 
-        // Later implement limit access for user with role "User" to only access their own requests
         [Authorize(Roles = "Admin, User")]
         [HttpGet("{id}")]
         [ResponseMessage(message: "Fetch request info successfully")]
@@ -35,6 +38,12 @@ namespace JobNexus.Controllers
                     Messages = ["Request not found with provided id"]
                 });
             }
+
+            var authorizationResult = await _authorizationService
+                .AuthorizeAsync(User, request, Operations.Read);
+
+            if (!authorizationResult.Succeeded)
+                return new ForbidResult();
 
             return Ok(request.ToCompanyRequestDto());
         }

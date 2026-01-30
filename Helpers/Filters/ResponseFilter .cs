@@ -47,7 +47,7 @@ namespace JobNexus.Helpers.Filters
                         error = (objectResult.Value as ErrorResponse)?.Error ?? ""
                     })
                     {
-                        StatusCode =statusCode
+                        StatusCode = statusCode
                     };
                 }
             }
