@@ -1,5 +1,4 @@
-﻿using JobNexus.Common.Constant;
-using JobNexus.Dtos.CompanyRequest;
+﻿using JobNexus.Dtos.CompanyRequest;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Authorization;
@@ -46,6 +45,16 @@ namespace JobNexus.Controllers
                 return new ForbidResult();
 
             return Ok(request.ToCompanyRequestDto());
+        }
+
+        [Authorize(Roles = "Admin, User")]
+        [HttpGet]
+        [ResponseMessage(message: "Fetch request list successfully")]
+        public async Task<ActionResult<ApiDataResponse<QueryResponse<CompanyRequestDto>>>> GetList([FromQuery] CompanyRequestQueryDto companyRequestQueryDto)
+        {
+            var data = (await _companyRequestService.GetAllAsync(companyRequestQueryDto, User));
+
+            return Ok(data);
         }
 
         [Authorize(Roles = "User")]

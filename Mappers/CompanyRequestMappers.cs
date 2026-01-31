@@ -25,6 +25,8 @@ namespace JobNexus.Mappers
 
                 Status = companyRequest.Status,
 
+                CreatedAt = companyRequest.CreatedAt,
+
                 CreatedBy = companyRequest.AppUser?.ToUserDto()
             };
         }

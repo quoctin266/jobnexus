@@ -1,4 +1,5 @@
-﻿using JobNexus.Extensions;
+﻿using JobNexus.Common.Enum;
+using JobNexus.Extensions;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -28,7 +29,7 @@ namespace JobNexus.Helpers.Authorization
             if (userId == null)
                 return Task.CompletedTask;
 
-            if (context.User.IsInRole("Admin"))
+            if (context.User.IsInRole(Role.Admin.ToString()))
             {
                 context.Succeed(requirement);
             }

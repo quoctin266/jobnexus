@@ -1,5 +1,4 @@
-﻿using JobNexus.Common.Constant;
-using JobNexus.Helpers.Authorization;
+﻿using JobNexus.Helpers.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace JobNexus.Extensions

@@ -22,5 +22,7 @@ namespace JobNexus.Dtos.CompanyRequest
         public CompanyRequestStatus Status { get; set; }
 
         public UserDto? CreatedBy { get; set; }
+
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }
