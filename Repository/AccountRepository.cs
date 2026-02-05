@@ -1,6 +1,6 @@
 ﻿using JobNexus.Common.Enum;
 using JobNexus.Dtos.User;
-using JobNexus.Interfaces;
+using JobNexus.Interfaces.Repository;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Globalization;
@@ -19,9 +19,21 @@ namespace JobNexus.Repository
             _signInManager = signInManager;
         }
 
-        public async Task<IdentityResult> AddRoleToUserAsync(AppUser user, Role role)
+        public async Task<IdentityResult> UpdateUserRoleAsync(AppUser user, Role role)
         {
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.Any())
+            {
+                var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                if (!removeResult.Succeeded) return removeResult;
+            }
+
             return await _userManager.AddToRoleAsync(user, role.ToString());
+        }
+
+        public async Task<IdentityResult> RemoveRoleFromUserAsync(AppUser user, IEnumerable<string> roles)
+        {
+            return await _userManager.RemoveFromRolesAsync(user, roles);
         }
 
         public async Task<IdentityResult> CreateUserAsync(AppUser user, string password)
@@ -76,7 +88,5 @@ namespace JobNexus.Repository
 
             return user;
         }
-
-
     }
 }

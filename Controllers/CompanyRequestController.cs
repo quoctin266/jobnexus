@@ -1,9 +1,10 @@
-﻿using JobNexus.Dtos.CompanyRequest;
+﻿using JobNexus.Common.Enum;
+using JobNexus.Dtos.CompanyRequest;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Authorization;
 using JobNexus.Helpers.Utils;
-using JobNexus.Interfaces;
+using JobNexus.Interfaces.BusinessService;
 using JobNexus.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -77,6 +78,25 @@ namespace JobNexus.Controllers
             }
 
             return StatusCode(StatusCodes.Status201Created, companyRequest.ToCompanyRequestDto());
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("{id}")]
+        [ResponseMessage(message: "Update request status successfully")]
+        public async Task<ActionResult<ApiDataResponse<CompanyRequestDto>>> UpdateStatus([FromRoute] int id, [FromBody] UpdateCompanyRequestDto updateCompanyRequestDto)
+        {
+            var request = await _companyRequestService.UpdateStatusAsync(id, updateCompanyRequestDto);
+
+            if(request == null)
+            {
+                return BadRequest(new ErrorResponse()
+                {
+                    Error = "Invalid Status Update",
+                    Messages = ["Cannot update status to Pending/ Target resource status can no longer be updated"]
+                });
+            }
+
+            return Ok(request.ToCompanyRequestDto());
         }
     }
 }

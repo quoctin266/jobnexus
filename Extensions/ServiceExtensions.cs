@@ -1,4 +1,5 @@
 ﻿using JobNexus.Interfaces;
+using JobNexus.Interfaces.BusinessService;
 using JobNexus.Services;
 using JobNexus.Services.Business;
 

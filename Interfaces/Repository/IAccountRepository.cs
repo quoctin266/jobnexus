@@ -3,13 +3,13 @@ using JobNexus.Dtos.User;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace JobNexus.Interfaces
+namespace JobNexus.Interfaces.Repository
 {
     public interface IAccountRepository
     {
         Task<IdentityResult> CreateUserAsync(AppUser user, string password);
 
-        Task<IdentityResult> AddRoleToUserAsync(AppUser user, Role role);
+        Task<IdentityResult> UpdateUserRoleAsync(AppUser user, Role role);
 
         Task<AppUser?> UpdateUserAsync(string id, UpdateUserDto updateUserDto);
 

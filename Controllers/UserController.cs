@@ -1,7 +1,7 @@
 ﻿using JobNexus.Dtos.User;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
-using JobNexus.Interfaces;
+using JobNexus.Interfaces.Repository;
 using JobNexus.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -24,6 +24,8 @@ namespace JobNexus.Models
 
         public CompanyRequestStatus Status { get; set; }
 
+        public string Reason { get; set; } = "";
+
         public string AppUserId { get; set; } = "";
 
         public AppUser? AppUser { get; set; }

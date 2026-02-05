@@ -1,4 +1,4 @@
-﻿using JobNexus.Interfaces;
+﻿using JobNexus.Interfaces.Repository;
 using JobNexus.Repository;
 
 namespace JobNexus.Extensions
@@ -8,6 +8,9 @@ namespace JobNexus.Extensions
         public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<ICompanyRequestRepository, CompanyRequestRepository>();
+            services.AddScoped<ICompanyRepository, CompanyRepository>();
+            services.AddScoped<ICompanyEmployeeRepository, CompanyEmployeeRepository>();
 
             return services;
         }

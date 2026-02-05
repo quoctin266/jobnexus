@@ -1,6 +1,5 @@
 ﻿using JobNexus.Common.Enum;
 using JobNexus.Interfaces;
-using System.ComponentModel;
 
 namespace JobNexus.Models
 {
@@ -12,7 +11,7 @@ namespace JobNexus.Models
 
         public string EmploymentContractUrl { get; set; } = "";
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public int CompanyId { get; set; }
 

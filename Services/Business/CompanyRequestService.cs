@@ -1,48 +1,48 @@
 ﻿using JobNexus.Common.Enum;
 using JobNexus.Data;
+using JobNexus.Dtos.CompanyEmployee;
 using JobNexus.Dtos.CompanyRequest;
-using JobNexus.Extensions;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces;
+using JobNexus.Interfaces.BusinessService;
+using JobNexus.Interfaces.Repository;
 using JobNexus.Mappers;
 using JobNexus.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace JobNexus.Services.Business
 {
     public class CompanyRequestService : ICompanyRequestService
     {
-        private readonly IBlobStorageService _blobStorageService;
-
         private readonly ApplicationDBContext _context;
 
-        private readonly Dictionary<string, Expression<Func<CompanyRequest, object>>> _sortMap =
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-           ["Name"] = cr => cr.Name,
-           ["CreatedAt"] = cr => cr.CreatedAt,
-           ["Status"] = cr => cr.Status
-        };
+        private readonly IBlobStorageService _blobStorageService;
 
-        public CompanyRequestService(IBlobStorageService blobStorageService, ApplicationDBContext context) 
+        private readonly ICompanyRequestRepository _companyRequestRepository;
+
+        private readonly ICompanyRepository _companyRepository;
+
+        private readonly ICompanyEmployeeRepository _companyEmployeeRepository;
+
+        private readonly IAccountRepository _accountRepository;
+
+        public CompanyRequestService(IBlobStorageService blobStorageService, ApplicationDBContext context, 
+                                     ICompanyRequestRepository companyRequestRepository, ICompanyRepository companyRepository, 
+                                     ICompanyEmployeeRepository companyEmployeeRepository, IAccountRepository accountRepository) 
         {
-            _blobStorageService = blobStorageService;
             _context = context;
-        }
-
-        public async Task<CompanyRequest?> CheckExistAsync(string userId)
-        {
-            return await _context.CompanyRequests
-                .FirstOrDefaultAsync(cr => cr.AppUserId == userId && 
-                    (cr.Status == CompanyRequestStatus.Pending || cr.Status == CompanyRequestStatus.Approved));
+            _blobStorageService = blobStorageService;
+            _companyRequestRepository = companyRequestRepository;
+            _companyRepository = companyRepository;
+            _companyEmployeeRepository = companyEmployeeRepository;
+            _accountRepository = accountRepository;
         }
 
         public async Task<CompanyRequest?> CreateRequestAsync(string userId, CreateCompanyRequestDto createCompanyRequestDto)
         {
             // Check if a pending or approved request already exists for the user
-            if (await CheckExistAsync(userId) is not null)
+            if (await _companyRequestRepository.CheckPendingOrApprovedAsync(userId) is not null)
             {
                 return null;
             }
@@ -50,80 +50,81 @@ namespace JobNexus.Services.Business
             var businessLicenseTask =  _blobStorageService.UploadFileAsync(createCompanyRequestDto.BusinessLicense);
             var employmentContracTask =  _blobStorageService.UploadFileAsync(createCompanyRequestDto.EmploymentContract);
 
-            var CompanyRequest = new CompanyRequest
-            {
-                Name = createCompanyRequestDto.Name,
-                Address = createCompanyRequestDto.Address,
-                Description = createCompanyRequestDto.Description,
-                TIN = createCompanyRequestDto.TIN,
-                BusinessLicenseUrl = await businessLicenseTask,
-                EmploymentContractUrl = await employmentContracTask,
-                Status = CompanyRequestStatus.Pending,
-                AppUserId = userId,
-            };
-
-            await _context.CompanyRequests.AddAsync(CompanyRequest);
-            await _context.SaveChangesAsync();
-
-            return CompanyRequest;
+            return await _companyRequestRepository.CreateAsync(createCompanyRequestDto, await businessLicenseTask, 
+                                                               await employmentContracTask, userId);
         }
 
-        public async Task<QueryResponse<CompanyRequestDto>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, ClaimsPrincipal User)
+        public async Task<QueryResponse<CompanyRequestDto>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, ClaimsPrincipal user)
         {
-            var query = _context.CompanyRequests.Include(cr => cr.AppUser).AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(companyRequestQueryDto.CompanyName))
-            {
-                query = query.Where(cr => cr.Name.ToLower().Contains(companyRequestQueryDto.CompanyName.ToLower()));
-            }
-
-            if (!string.IsNullOrWhiteSpace(companyRequestQueryDto.TIN))
-            {
-                query = query.Where(cr => cr.TIN.Contains(companyRequestQueryDto.TIN));
-            }
-
-            if (companyRequestQueryDto.Status != null)
-            {
-                query = query.Where(cr => cr.Status == companyRequestQueryDto.Status);
-            }
-
-            // If admin is requesting, they can filter by any UserId
-            if (User.IsInRole(Role.Admin.ToString()) && !string.IsNullOrWhiteSpace(companyRequestQueryDto.UserId))
-            {
-                query = query.Where(cr => cr.AppUserId == companyRequestQueryDto.UserId);
-            }
-
-            // If regular user is requesting, they can only see their own requests
-            if (User.IsInRole(Role.User.ToString()))
-            {
-                query = query.Where(cr => cr.AppUserId == User.GetUserId());
-            }
-
-            if (!string.IsNullOrWhiteSpace(companyRequestQueryDto.SortBy))
-            {
-                query = query.ApplySorting(companyRequestQueryDto.SortBy, companyRequestQueryDto.IsDescending, _sortMap);
-            }
-
-            var totalItems = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling(totalItems / (double)companyRequestQueryDto.PageSize);
-
-            var offset = (companyRequestQueryDto.PageNumber - 1) * companyRequestQueryDto.PageSize;
-            var items = await query.Skip(offset).Take(companyRequestQueryDto.PageSize).ToListAsync();
+            var data = await _companyRequestRepository.GetAllAsync(companyRequestQueryDto, user);
 
             return new QueryResponse<CompanyRequestDto>
             {
-                TotalPages = totalPages,
-                PageNumber = companyRequestQueryDto.PageNumber,
-                PageSize = companyRequestQueryDto.PageSize,
-                TotalItems = totalItems,
-                Items = items.Select(cr => cr.ToCompanyRequestDto())
+                TotalPages = data.TotalPages,
+                PageNumber = data.PageNumber,
+                PageSize = data.PageSize,
+                TotalItems = data.TotalItems,
+                Items = data.Items.Select(cr => cr.ToCompanyRequestDto())
             };
         }
 
         public async Task<CompanyRequest?> GetByIdAsync(int requestId)
         {
-            return await _context.CompanyRequests.Include(cr => cr.AppUser)
-                .FirstOrDefaultAsync(cr => cr.Id == requestId);
+            return await _companyRequestRepository.GetByIdAsync(requestId);
+        }
+
+        public async Task<CompanyRequest?> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
+        {
+            if(updateCompanyRequestDto.Status == CompanyRequestStatus.Rejected)
+            {
+                   return await _companyRequestRepository.UpdateStatusAsync(requestId, updateCompanyRequestDto);
+            }
+
+            if (updateCompanyRequestDto.Status == CompanyRequestStatus.Approved)
+            {
+                 await using var transaction = await _context.Database.BeginTransactionAsync();
+
+                try
+                {
+                    var companyRequest = await _companyRequestRepository.UpdateStatusAsync(requestId, updateCompanyRequestDto);
+
+                    if(companyRequest != null)
+                    {
+                        var company = await _companyRepository.CreateAsync(companyRequest);
+
+                        var createCompanyEmployeeDto = new CreateCompanyEmployeeDto
+                        {
+                            EmploymentContractUrl = companyRequest.EmploymentContractUrl,
+                            CompanyId = company.Id,
+                            AppUserId = companyRequest.AppUserId,
+                            CompanyRole = CompanyRole.Owner,
+                        };
+
+                        await _companyEmployeeRepository.CreateAsync(createCompanyEmployeeDto);
+
+                        var user = await _accountRepository.GetByIdAsync(companyRequest.AppUserId);
+
+                        var updateRoleResult = await _accountRepository.UpdateUserRoleAsync(user!, Role.Employer);
+
+                        if (!updateRoleResult.Succeeded)
+                        {
+                            throw new Exception("Failed to update user role.");
+                        }
+                    }
+
+                    await transaction.CommitAsync();
+
+                    return companyRequest;
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception.Message);
+
+                    await transaction.RollbackAsync();
+                }
+            }
+
+            return null;
         }
     }
 }

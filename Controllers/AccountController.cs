@@ -4,6 +4,7 @@ using JobNexus.Dtos.User;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces;
+using JobNexus.Interfaces.Repository;
 using JobNexus.Mappers;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -42,7 +43,7 @@ namespace JobNexus.Controllers
 
             if (createdUser.Succeeded)
             {
-                var roleResult = await _accountRepository.AddRoleToUserAsync(user, Role.User);
+                var roleResult = await _accountRepository.UpdateUserRoleAsync(user, Role.User);
                 if (roleResult.Succeeded)
                 {
                     return StatusCode(StatusCodes.Status201Created, user.ToUserDto());
