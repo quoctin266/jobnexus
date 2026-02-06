@@ -3,6 +3,7 @@ using System;
 using JobNexus.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace JobNexus.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260206072047_addTableSkillAndJob")]
+    partial class addTableSkillAndJob
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -319,44 +322,6 @@ namespace JobNexus.Migrations
                     b.ToTable("Jobs");
                 });
 
-            modelBuilder.Entity("JobNexus.Models.Resume", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.ToTable("Resumes");
-                });
-
             modelBuilder.Entity("JobNexus.Models.Skill", b =>
                 {
                     b.Property<int>("Id")
@@ -558,7 +523,7 @@ namespace JobNexus.Migrations
             modelBuilder.Entity("JobNexus.Models.CompanyRequest", b =>
                 {
                     b.HasOne("JobNexus.Models.AppUser", "AppUser")
-                        .WithMany("CompanyRequests")
+                        .WithMany()
                         .HasForeignKey("AppUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -583,17 +548,6 @@ namespace JobNexus.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("CompanyEmployee");
-                });
-
-            modelBuilder.Entity("JobNexus.Models.Resume", b =>
-                {
-                    b.HasOne("JobNexus.Models.AppUser", "AppUser")
-                        .WithMany("Resumes")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AppUser");
                 });
 
             modelBuilder.Entity("JobSkill", b =>
@@ -665,10 +619,6 @@ namespace JobNexus.Migrations
             modelBuilder.Entity("JobNexus.Models.AppUser", b =>
                 {
                     b.Navigation("CompanyEmployees");
-
-                    b.Navigation("CompanyRequests");
-
-                    b.Navigation("Resumes");
                 });
 
             modelBuilder.Entity("JobNexus.Models.Company", b =>

@@ -13,6 +13,11 @@ namespace JobNexus.Repository
             _context = context;
         }
 
+        public async Task<Company?> GetByIdAsync(int companyId)
+        {
+            return await _context.Companies.FindAsync(companyId);
+        }
+
         public async Task<Company> CreateAsync(CompanyRequest companyRequest)
         {
             var company = new Company()

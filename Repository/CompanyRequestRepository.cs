@@ -35,27 +35,8 @@ namespace JobNexus.Repository
                    (cr.Status == CompanyRequestStatus.Pending || cr.Status == CompanyRequestStatus.Approved));
         }
 
-        public async Task<CompanyRequest> CreateAsync(CreateCompanyRequestDto createCompanyRequestDto, string businessLicenseUrl, string employmentContracUrl, string userId)
-        {
-            var CompanyRequest = new CompanyRequest
-            {
-                Name = createCompanyRequestDto.Name,
-                Address = createCompanyRequestDto.Address,
-                Description = createCompanyRequestDto.Description,
-                TIN = createCompanyRequestDto.TIN,
-                BusinessLicenseUrl = businessLicenseUrl,
-                EmploymentContractUrl = employmentContracUrl,
-                Status = CompanyRequestStatus.Pending,
-                AppUserId = userId,
-            };
-
-            await _context.CompanyRequests.AddAsync(CompanyRequest);
-            await _context.SaveChangesAsync();
-
-            return CompanyRequest;
-        }
-
-        public async Task<QueryResponse<CompanyRequest>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, ClaimsPrincipal user)
+        public async Task<QueryResponse<CompanyRequest>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, 
+                                                                     ClaimsPrincipal user)
         {
             var query = _context.CompanyRequests.Include(cr => cr.AppUser).AsQueryable();
 
@@ -112,10 +93,33 @@ namespace JobNexus.Repository
             return await _context.CompanyRequests.Include(cr => cr.AppUser).FirstOrDefaultAsync(cr => cr.Id == requestId);
         }
 
+        public async Task<CompanyRequest> CreateAsync(CreateCompanyRequestDto createCompanyRequestDto, string businessLicenseUrl, 
+                                                      string employmentContracUrl, string userId)
+        {
+            var CompanyRequest = new CompanyRequest
+            {
+                Name = createCompanyRequestDto.Name,
+                Address = createCompanyRequestDto.Address,
+                Description = createCompanyRequestDto.Description,
+                TIN = createCompanyRequestDto.TIN,
+                BusinessLicenseUrl = businessLicenseUrl,
+                EmploymentContractUrl = employmentContracUrl,
+                Status = CompanyRequestStatus.Pending,
+                AppUserId = userId,
+            };
+
+            await _context.CompanyRequests.AddAsync(CompanyRequest);
+            await _context.SaveChangesAsync();
+
+            await _context.Entry(CompanyRequest).Reference(cr => cr.AppUser).LoadAsync();
+
+            return CompanyRequest;
+        }
+
         public async Task<CompanyRequest?> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
         {
             // Only pending requests can be updated
-            var companyRequest = await _context.CompanyRequests.FirstOrDefaultAsync(cr => cr.Id == requestId 
+            var companyRequest = await _context.CompanyRequests.Include(cr => cr.AppUser).FirstOrDefaultAsync(cr => cr.Id == requestId 
                                                                                  && cr.Status == CompanyRequestStatus.Pending);
 
             if(companyRequest != null)

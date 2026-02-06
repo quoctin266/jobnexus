@@ -21,6 +21,8 @@ namespace JobNexus.Models
 
         public AppUser? AppUser { get; set; }
 
+        public List<Job> Jobs { get; set; } = [];
+
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset UpdatedAt { get; set; }

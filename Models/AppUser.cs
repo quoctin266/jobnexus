@@ -13,6 +13,10 @@ namespace JobNexus.Models
 
         public List<CompanyEmployee> CompanyEmployees { get; set; } = [];
 
+        public List<CompanyRequest> CompanyRequests { get; set; } = [];
+
+        public List<Resume> Resumes { get; set; } = [];
+
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset UpdatedAt { get; set; }

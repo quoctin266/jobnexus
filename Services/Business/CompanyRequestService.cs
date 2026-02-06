@@ -39,22 +39,8 @@ namespace JobNexus.Services.Business
             _accountRepository = accountRepository;
         }
 
-        public async Task<CompanyRequest?> CreateRequestAsync(string userId, CreateCompanyRequestDto createCompanyRequestDto)
-        {
-            // Check if a pending or approved request already exists for the user
-            if (await _companyRequestRepository.CheckPendingOrApprovedAsync(userId) is not null)
-            {
-                return null;
-            }
-
-            var businessLicenseTask =  _blobStorageService.UploadFileAsync(createCompanyRequestDto.BusinessLicense);
-            var employmentContracTask =  _blobStorageService.UploadFileAsync(createCompanyRequestDto.EmploymentContract);
-
-            return await _companyRequestRepository.CreateAsync(createCompanyRequestDto, await businessLicenseTask, 
-                                                               await employmentContracTask, userId);
-        }
-
-        public async Task<QueryResponse<CompanyRequestDto>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, ClaimsPrincipal user)
+        public async Task<QueryResponse<CompanyRequestDto>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, 
+                                                                        ClaimsPrincipal user)
         {
             var data = await _companyRequestRepository.GetAllAsync(companyRequestQueryDto, user);
 
@@ -71,6 +57,21 @@ namespace JobNexus.Services.Business
         public async Task<CompanyRequest?> GetByIdAsync(int requestId)
         {
             return await _companyRequestRepository.GetByIdAsync(requestId);
+        }
+
+        public async Task<CompanyRequest?> CreateRequestAsync(string userId, CreateCompanyRequestDto createCompanyRequestDto)
+        {
+            // Check if a pending or approved request already exists for the user
+            if (await _companyRequestRepository.CheckPendingOrApprovedAsync(userId) is not null)
+            {
+                return null;
+            }
+
+            var businessLicenseTask = _blobStorageService.UploadFileAsync(createCompanyRequestDto.BusinessLicense);
+            var employmentContractTask = _blobStorageService.UploadFileAsync(createCompanyRequestDto.EmploymentContract);
+
+            return await _companyRequestRepository.CreateAsync(createCompanyRequestDto, await businessLicenseTask,
+                                                               await employmentContractTask, userId);
         }
 
         public async Task<CompanyRequest?> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
@@ -101,7 +102,7 @@ namespace JobNexus.Services.Business
                         };
 
                         await _companyEmployeeRepository.CreateAsync(createCompanyEmployeeDto);
-
+                       
                         var user = await _accountRepository.GetByIdAsync(companyRequest.AppUserId);
 
                         var updateRoleResult = await _accountRepository.UpdateUserRoleAsync(user!, Role.Employer);

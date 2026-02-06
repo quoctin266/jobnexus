@@ -14,6 +14,7 @@ namespace JobNexus.Extensions
 
             // business services
             services.AddScoped<ICompanyRequestService, CompanyRequestService>();
+            services.AddScoped<ICompanyEmployeeService, CompanyEmployeeService>();
 
             return services;
         }
