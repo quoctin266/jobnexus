@@ -1,4 +1,6 @@
-﻿using JobNexus.Common.Enum;
+﻿using JobNexus.Common.Constant;
+using JobNexus.Common.Constant.Messages;
+using JobNexus.Common.Enum;
 using JobNexus.Dtos.Auth;
 using JobNexus.Dtos.User;
 using JobNexus.Helpers.Attributes;
@@ -30,7 +32,7 @@ namespace JobNexus.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        [ResponseMessage(message: "Register successfully")]
+        [ResponseMessage(message: SuccessMessages.RegisterSuccess)]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> Register([FromBody] RegisterDto registerDto)
         {
             var user = new AppUser
@@ -57,14 +59,10 @@ namespace JobNexus.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        [ResponseMessage(message: "Login successfully")]
+        [ResponseMessage(message: SuccessMessages.LoginSuccess)]
         public async Task<ActionResult<ApiDataResponse<LoginResponseDto>>> Login([FromBody] LoginDto loginDto)
         {
-            var unauthorizedResponse = new ErrorResponse()
-            {
-                Error = "Authorization failed",
-                Messages = ["Invalid email/password"],
-            };
+            var unauthorizedResponse = new ErrorResponse(Error.UnAuthorized, [ErrorMessages.InvalidCredentials]);
 
             var user = await _accountRepository.GetByEmailAsync(loginDto.Email);
 

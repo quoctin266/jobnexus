@@ -116,19 +116,13 @@ namespace JobNexus.Repository
             return CompanyRequest;
         }
 
-        public async Task<CompanyRequest?> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
+        public async Task<CompanyRequest> UpdateStatusAsync(CompanyRequest companyRequest, UpdateCompanyRequestDto updateCompanyRequestDto)
         {
-            // Only pending requests can be updated
-            var companyRequest = await _context.CompanyRequests.Include(cr => cr.AppUser).FirstOrDefaultAsync(cr => cr.Id == requestId 
-                                                                                 && cr.Status == CompanyRequestStatus.Pending);
+            
+            companyRequest.Status = updateCompanyRequestDto.Status;
+            companyRequest.Reason = updateCompanyRequestDto.Reason;
 
-            if(companyRequest != null)
-            {
-                companyRequest.Status = updateCompanyRequestDto.Status;
-                companyRequest.Reason = updateCompanyRequestDto.Reason;
-
-                await _context.SaveChangesAsync();
-            }
+            await _context.SaveChangesAsync();
 
             return companyRequest;
         }

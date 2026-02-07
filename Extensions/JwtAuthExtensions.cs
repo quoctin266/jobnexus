@@ -1,4 +1,6 @@
-﻿using JobNexus.Helpers.Utils;
+﻿using JobNexus.Common.Constant;
+using JobNexus.Common.Constant.Messages;
+using JobNexus.Helpers.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -19,20 +21,20 @@ namespace JobNexus.Extensions
                 options.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidIssuer = configuration["JWT:Issuer"],
-                    ValidateAudience = true,
-                    ValidAudience = configuration["JWT:Audience"],
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration["JWT:SigningKey"]!)
-                    )
-                };
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = configuration["JWT:Issuer"],
+                ValidateAudience = true,
+                ValidAudience = configuration["JWT:Audience"],
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(configuration["JWT:SigningKey"]!)
+                )
+            };
 
-                options.Events = new JwtBearerEvents
-                {
+            options.Events = new JwtBearerEvents
+            {
                     OnChallenge = context =>
                     {
                         context.HandleResponse();
@@ -40,12 +42,8 @@ namespace JobNexus.Extensions
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         context.Response.ContentType = "application/json";
 
-                        var response = new ApiErrorResponse()
-                        {
-                            statusCode = StatusCodes.Status401Unauthorized,
-                            message = ["No or Invalid Token"],
-                            error = "Authorization failed"
-                        };
+                        var response = new ApiErrorResponse(StatusCodes.Status401Unauthorized, 
+                                                           [ErrorMessages.InvalidToken], Error.UnAuthorized);
 
                         return context.Response.WriteAsJsonAsync(response);
                     },
@@ -55,12 +53,8 @@ namespace JobNexus.Extensions
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         context.Response.ContentType = "application/json";
 
-                        var response = new ApiErrorResponse()
-                        {
-                            statusCode = StatusCodes.Status403Forbidden,
-                            message = ["Cannot access this resource"],
-                            error = "No permission"
-                        };
+                        var response = new ApiErrorResponse(StatusCodes.Status403Forbidden, 
+                                                           [ErrorMessages.NoPermission], Error.Forbidden);
 
                         return context.Response.WriteAsJsonAsync(response);
                     }

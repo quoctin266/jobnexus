@@ -7,12 +7,12 @@ namespace JobNexus.Interfaces.BusinessService
 {
     public interface ICompanyRequestService
     {
-        Task<CompanyRequest?> CreateRequestAsync(string userId, CreateCompanyRequestDto createCompanyRequestDto);
+        Task<ServiceResult<CompanyRequest>> CreateRequestAsync(string userId, CreateCompanyRequestDto createCompanyRequestDto);
 
-        Task<CompanyRequest?> GetByIdAsync(int requestId);
+        Task<ServiceResult<CompanyRequest>> GetByIdAsync(int requestId);
 
-        Task<QueryResponse<CompanyRequestDto>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, ClaimsPrincipal User);
+        Task<ServiceResult<QueryResponse<CompanyRequestDto>>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, ClaimsPrincipal User);
 
-        Task<CompanyRequest?> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto);
+        Task<ServiceResult<CompanyRequest>> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto);
     }
 }

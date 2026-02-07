@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using JobNexus.Common.Constant;
+using Microsoft.AspNetCore.Identity;
 
 namespace JobNexus.Helpers.Utils
 {
@@ -8,11 +9,7 @@ namespace JobNexus.Helpers.Utils
         {
             var messages = errors.Select(e => e.Description).ToList();
 
-            return new ErrorResponse()
-            {
-                Messages = messages,
-                Error = "Bad request"
-            };
+            return new ErrorResponse(Error.ServerFailure, messages);
         }
     }
 }

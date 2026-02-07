@@ -1,4 +1,4 @@
-﻿using JobNexus.Common.Enum;
+﻿using JobNexus.Common.Constant.Messages;
 using JobNexus.Dtos.CompanyRequest;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Attributes;
@@ -26,77 +26,79 @@ namespace JobNexus.Controllers
 
         [Authorize(Roles = "Admin, User")]
         [HttpGet("{id}")]
-        [ResponseMessage(message: "Fetch request info successfully")]
+        [ResponseMessage(message: SuccessMessages.FetchOneCompanyRequest)]
         public async Task<ActionResult<ApiDataResponse<CompanyRequestDto>>> GetById([FromRoute] int id)
         {
-            var request = await _companyRequestService.GetByIdAsync(id);
-            if (request == null)
+            var result = await _companyRequestService.GetByIdAsync(id);
+
+            if (!result.IsSuccess)
             {
-                return new NotFoundObjectResult(new ErrorResponse()
+                return result.StatusCode switch
                 {
-                    Error = "Not Found",
-                    Messages = ["Request not found with provided id"]
-                });
+                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
             var authorizationResult = await _authorizationService
-                .AuthorizeAsync(User, request, Operations.Read);
+                .AuthorizeAsync(User, result.Value, Operations.Read);
 
             if (!authorizationResult.Succeeded)
-                return new ForbidResult();
+                return Forbid();
 
-            return Ok(request.ToCompanyRequestDto());
+            return Ok(result.Value?.ToCompanyRequestDto());
         }
 
         [Authorize(Roles = "Admin, User")]
         [HttpGet]
-        [ResponseMessage(message: "Fetch request list successfully")]
+        [ResponseMessage(message: SuccessMessages.FetchListCompanyRequest)]
         public async Task<ActionResult<ApiDataResponse<QueryResponse<CompanyRequestDto>>>> GetList([FromQuery] CompanyRequestQueryDto companyRequestQueryDto)
         {
-            var data = (await _companyRequestService.GetAllAsync(companyRequestQueryDto, User));
+            var result = await _companyRequestService.GetAllAsync(companyRequestQueryDto, User);
 
-            return Ok(data);
+            return Ok(result.Value);
         }
 
         [Authorize(Roles = "User")]
         [HttpPost]
         [Consumes("multipart/form-data")]
-        [ResponseMessage(message: "Create request successfully")]
+        [ResponseMessage(message: SuccessMessages.CreateCompanyRequest)]
         public async Task<ActionResult<ApiDataResponse<CompanyRequestDto>>> CreateRequest([FromForm] CreateCompanyRequestDto createCompanyRequestDto)
         {
             var userId = User.GetUserId();
 
-            var companyRequest = await _companyRequestService.CreateRequestAsync(userId!, createCompanyRequestDto);
+            var result = await _companyRequestService.CreateRequestAsync(userId!, createCompanyRequestDto);
 
-            if(companyRequest == null)
+            if(!result.IsSuccess)
             {
-                return BadRequest(new ErrorResponse()
+                return result.StatusCode switch
                 {
-                    Error = "Can not create more requests",
-                    Messages = ["Current pending or approved request already exists"]
-                });
+                    StatusCodes.Status409Conflict => Conflict(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
-            return StatusCode(StatusCodes.Status201Created, companyRequest.ToCompanyRequestDto());
+            return StatusCode(StatusCodes.Status201Created, result.Value?.ToCompanyRequestDto());
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPatch("{id}")]
-        [ResponseMessage(message: "Update request status successfully")]
+        [ResponseMessage(message: SuccessMessages.UpdateCompanyRequest)]
         public async Task<ActionResult<ApiDataResponse<CompanyRequestDto>>> UpdateStatus([FromRoute] int id, [FromBody] UpdateCompanyRequestDto updateCompanyRequestDto)
         {
-            var request = await _companyRequestService.UpdateStatusAsync(id, updateCompanyRequestDto);
+            var result = await _companyRequestService.UpdateStatusAsync(id, updateCompanyRequestDto);
 
-            if(request == null)
+            if(!result.IsSuccess)
             {
-                return BadRequest(new ErrorResponse()
+                return result.StatusCode switch
                 {
-                    Error = "Invalid Status Update",
-                    Messages = ["Cannot update status to Pending/ Target resource status can no longer be updated"]
-                });
+                    StatusCodes.Status400BadRequest => BadRequest(new ErrorResponse(result.Error, result.Messages)),
+                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
-            return Ok(request.ToCompanyRequestDto());
+            return Ok(result.Value?.ToCompanyRequestDto());
         }
     }
 }

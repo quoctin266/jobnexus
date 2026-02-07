@@ -1,4 +1,6 @@
-﻿using JobNexus.Common.Enum;
+﻿using JobNexus.Common.Constant;
+using JobNexus.Common.Constant.Messages;
+using JobNexus.Common.Enum;
 using JobNexus.Data;
 using JobNexus.Dtos.CompanyEmployee;
 using JobNexus.Dtos.CompanyRequest;
@@ -39,46 +41,76 @@ namespace JobNexus.Services.Business
             _accountRepository = accountRepository;
         }
 
-        public async Task<QueryResponse<CompanyRequestDto>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, 
-                                                                        ClaimsPrincipal user)
+        public async Task<ServiceResult<QueryResponse<CompanyRequestDto>>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, 
+                                                                                       ClaimsPrincipal user)
         {
             var data = await _companyRequestRepository.GetAllAsync(companyRequestQueryDto, user);
 
-            return new QueryResponse<CompanyRequestDto>
+            return ServiceResult<QueryResponse<CompanyRequestDto>>.Success(new QueryResponse<CompanyRequestDto>
             {
                 TotalPages = data.TotalPages,
                 PageNumber = data.PageNumber,
                 PageSize = data.PageSize,
                 TotalItems = data.TotalItems,
                 Items = data.Items.Select(cr => cr.ToCompanyRequestDto())
-            };
+            });
         }
 
-        public async Task<CompanyRequest?> GetByIdAsync(int requestId)
+        public async Task<ServiceResult<CompanyRequest>> GetByIdAsync(int requestId)
         {
-            return await _companyRequestRepository.GetByIdAsync(requestId);
+            var companyRequest = await _companyRequestRepository.GetByIdAsync(requestId);
+
+            if(companyRequest is null)
+            {
+                return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status404NotFound, 
+                                                             Error.NotFound, [ErrorMessages.CompanyRequestNotFound]);
+            }
+
+            return ServiceResult<CompanyRequest>.Success(companyRequest);
         }
 
-        public async Task<CompanyRequest?> CreateRequestAsync(string userId, CreateCompanyRequestDto createCompanyRequestDto)
+        public async Task<ServiceResult<CompanyRequest>> CreateRequestAsync(string userId, CreateCompanyRequestDto createCompanyRequestDto)
         {
             // Check if a pending or approved request already exists for the user
             if (await _companyRequestRepository.CheckPendingOrApprovedAsync(userId) is not null)
             {
-                return null;
+                return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status409Conflict,
+                                                             Error.ResourceConflict,
+                                                             [ErrorMessages.CompanyRequestConflict]);
             }
 
             var businessLicenseTask = _blobStorageService.UploadFileAsync(createCompanyRequestDto.BusinessLicense);
             var employmentContractTask = _blobStorageService.UploadFileAsync(createCompanyRequestDto.EmploymentContract);
 
-            return await _companyRequestRepository.CreateAsync(createCompanyRequestDto, await businessLicenseTask,
+            var companyRequest = await _companyRequestRepository.CreateAsync(createCompanyRequestDto, await businessLicenseTask,
                                                                await employmentContractTask, userId);
+
+            return ServiceResult<CompanyRequest>.Success(companyRequest);
         }
 
-        public async Task<CompanyRequest?> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
+        public async Task<ServiceResult<CompanyRequest>> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
         {
-            if(updateCompanyRequestDto.Status == CompanyRequestStatus.Rejected)
+            if(updateCompanyRequestDto.Status == CompanyRequestStatus.Pending)
             {
-                   return await _companyRequestRepository.UpdateStatusAsync(requestId, updateCompanyRequestDto);
+                return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status400BadRequest,
+                                                             Error.ViolatedRule,
+                                                             [ErrorMessages.InvalidCompanyRequestStatusUpdate]);
+            }
+
+            var companyRequest = await _companyRequestRepository.GetByIdAsync(requestId);
+
+            if(companyRequest is null)
+            {
+                return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status404NotFound,
+                                                             Error.NotFound,
+                                                             [ErrorMessages.CompanyRequestNotFound]);
+            }
+
+            if (updateCompanyRequestDto.Status == CompanyRequestStatus.Rejected)
+            {
+                await _companyRequestRepository.UpdateStatusAsync(companyRequest, updateCompanyRequestDto);
+
+                return ServiceResult<CompanyRequest>.Success(companyRequest);
             }
 
             if (updateCompanyRequestDto.Status == CompanyRequestStatus.Approved)
@@ -87,35 +119,32 @@ namespace JobNexus.Services.Business
 
                 try
                 {
-                    var companyRequest = await _companyRequestRepository.UpdateStatusAsync(requestId, updateCompanyRequestDto);
+                    await _companyRequestRepository.UpdateStatusAsync(companyRequest, updateCompanyRequestDto);
 
-                    if(companyRequest != null)
+                    var company = await _companyRepository.CreateAsync(companyRequest);
+
+                    var createCompanyEmployeeDto = new CreateCompanyEmployeeDto
                     {
-                        var company = await _companyRepository.CreateAsync(companyRequest);
+                        EmploymentContractUrl = companyRequest.EmploymentContractUrl,
+                        CompanyId = company.Id,
+                        AppUserId = companyRequest.AppUserId,
+                        CompanyRole = CompanyRole.Owner,
+                    };
 
-                        var createCompanyEmployeeDto = new CreateCompanyEmployeeDto
-                        {
-                            EmploymentContractUrl = companyRequest.EmploymentContractUrl,
-                            CompanyId = company.Id,
-                            AppUserId = companyRequest.AppUserId,
-                            CompanyRole = CompanyRole.Owner,
-                        };
-
-                        await _companyEmployeeRepository.CreateAsync(createCompanyEmployeeDto);
+                    await _companyEmployeeRepository.CreateAsync(createCompanyEmployeeDto);
                        
-                        var user = await _accountRepository.GetByIdAsync(companyRequest.AppUserId);
+                    var user = await _accountRepository.GetByIdAsync(companyRequest.AppUserId);
 
-                        var updateRoleResult = await _accountRepository.UpdateUserRoleAsync(user!, Role.Employer);
+                    var updateRoleResult = await _accountRepository.UpdateUserRoleAsync(user!, Role.Employer);
 
-                        if (!updateRoleResult.Succeeded)
-                        {
-                            throw new Exception("Failed to update user role.");
-                        }
+                    if (!updateRoleResult.Succeeded)
+                    {
+                        throw new Exception("Failed to update user role.");
                     }
-
+                    
                     await transaction.CommitAsync();
 
-                    return companyRequest;
+                    return ServiceResult<CompanyRequest>.Success(companyRequest);
                 }
                 catch (Exception exception)
                 {
@@ -125,7 +154,9 @@ namespace JobNexus.Services.Business
                 }
             }
 
-            return null;
+            return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status500InternalServerError,
+                                                         Error.ServerFailure,
+                                                         [ErrorMessages.ServerError]);
         }
     }
 }

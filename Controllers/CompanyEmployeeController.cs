@@ -1,4 +1,5 @@
-﻿using JobNexus.Dtos.CompanyEmployee;
+﻿using JobNexus.Common.Constant.Messages;
+using JobNexus.Dtos.CompanyEmployee;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
@@ -22,37 +23,44 @@ namespace JobNexus.Controllers
 
         [Authorize(Roles = "Admin, Employer")]
         [HttpGet("{id}")]
-        [ResponseMessage(message: "Fetch employee info successfully")]
+        [ResponseMessage(message: SuccessMessages.FetchOneEmployee)]
         public async Task<ActionResult<ApiDataResponse<CompanyEmployeeDto>>> GetById([FromRoute] int id)
         {
-            var employee = await _companyEmployeeService.GetByIdAsync(id);
-            if (employee == null)
+            var result = await _companyEmployeeService.GetByIdAsync(id);
+
+            if (!result.IsSuccess)
             {
-                return new NotFoundObjectResult(new ErrorResponse()
+                return result.StatusCode switch
                 {
-                    Error = "Not Found",
-                    Messages = ["Employee not found with provided id"]
-                });
+                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
-            return Ok(employee.ToCompanyEmployeeDto());
+            return Ok(result.Value?.ToCompanyEmployeeDto());
         }
 
         [Authorize(Roles = "Employer")]
         [HttpPost]
         [Consumes("multipart/form-data")]
-        [ResponseMessage(message: "Create company employee successfully")]
+        [ResponseMessage(message: SuccessMessages.CreateEmployee)]
         public async Task<ActionResult<ApiDataResponse<CompanyEmployeeDto>>> Create([FromForm] CreateFormDto createFormDto)
         {
             var userId = User.GetUserId();
-            var companyEmployee = await _companyEmployeeService.CreateAsync(createFormDto, userId!);
+            var result = await _companyEmployeeService.CreateAsync(createFormDto, userId!);
 
-            if (companyEmployee == null)
+            if (!result.IsSuccess)
             {
-                return new ForbidResult();
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status400BadRequest => BadRequest(new ErrorResponse(result.Error, result.Messages)),
+                    StatusCodes.Status403Forbidden => Forbid(),
+                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
-            return StatusCode(StatusCodes.Status201Created, companyEmployee.ToCompanyEmployeeDto());
+            return StatusCode(StatusCodes.Status201Created, result.Value?.ToCompanyEmployeeDto());
         }
     }
 }

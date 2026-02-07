@@ -1,9 +1,6 @@
-﻿namespace JobNexus.Helpers.Utils
-{
-    public class ErrorResponse
-    {
-        public string Error { get; set; } = "";
+﻿using JobNexus.Interfaces;
 
-        public List<string> Messages { get; set; } = [];
-    }
+namespace JobNexus.Helpers.Utils
+{
+    public record ErrorResponse (string Error, List<string> Messages) : IErrorResponse;
 }

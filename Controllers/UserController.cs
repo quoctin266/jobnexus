@@ -1,4 +1,6 @@
-﻿using JobNexus.Dtos.User;
+﻿using JobNexus.Common.Constant;
+using JobNexus.Common.Constant.Messages;
+using JobNexus.Dtos.User;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces.Repository;
@@ -22,17 +24,13 @@ namespace JobNexus.Controllers
 
         [Authorize(Roles = "Admin, User")]
         [HttpGet("{id}")]
-        [ResponseMessage(message: "Fetch user info successfully")]
+        [ResponseMessage(message: SuccessMessages.FetchOneUser)]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> GetById([FromRoute] string id)
         {
             var user = await _accountRepository.GetByIdAsync(id);
             if(user == null)
             {
-                return new NotFoundObjectResult(new ErrorResponse()
-                {
-                    Error = "Not Found",
-                    Messages = [ "User not found with provided id" ]
-                });
+                return new NotFoundObjectResult(new ErrorResponse(Error.NotFound, [ErrorMessages.UserNotFound]));
             }
 
             return Ok(user.ToUserDto());
@@ -40,17 +38,13 @@ namespace JobNexus.Controllers
 
         [Authorize(Roles = "Admin, User")]
         [HttpPut("{id}")]
-        [ResponseMessage(message: "Update user successfully")]
+        [ResponseMessage(message: SuccessMessages.UpdateUser)]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> Update([FromRoute] string id, [FromBody] UpdateUserDto updateUserDto)
         {
             var user = await _accountRepository.UpdateUserAsync(id, updateUserDto);
             if (user == null)
             {
-                return new NotFoundObjectResult(new ErrorResponse()
-                {
-                    Error = "Not Found",
-                    Messages = ["User not found with provided id"]
-                });
+                return new NotFoundObjectResult(new ErrorResponse(Error.NotFound, [ErrorMessages.UserNotFound]));
             }
 
             return Ok(user.ToUserDto());
@@ -58,17 +52,13 @@ namespace JobNexus.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
-        [ResponseMessage(message: "Delete user successfully")]
+        [ResponseMessage(message: SuccessMessages.DeleteUser)]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> Delete([FromRoute] string id)
         {
             var user = await _accountRepository.DeleteAsync(id);
             if (user == null)
             {
-                return new NotFoundObjectResult(new ErrorResponse()
-                {
-                    Error = "Not Found",
-                    Messages = ["User not found with provided id"]
-                });
+                return new NotFoundObjectResult(new ErrorResponse(Error.NotFound, [ErrorMessages.UserNotFound]));
             }
 
             return Ok(user.ToUserDto());

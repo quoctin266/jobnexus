@@ -1,0 +1,24 @@
+﻿namespace JobNexus.Common.Constant.Messages
+{
+    public static class SuccessMessages
+    {
+        // Authentication Messages
+        public const string LoginSuccess = "Login successfully";
+        public const string RegisterSuccess = "Register successfully";
+
+        // Company Employee Messages
+        public const string CreateEmployee = "Create company employee successfully";
+        public const string FetchOneEmployee = "Fetch employee info successfully";
+
+        // Company Request Messages
+        public const string CreateCompanyRequest = "Create request successfully";
+        public const string FetchOneCompanyRequest = "Fetch request info successfully";
+        public const string FetchListCompanyRequest = "Fetch request list successfully";
+        public const string UpdateCompanyRequest = "Update request status successfully";
+
+        // User Messages
+        public const string DeleteUser = "Delete user successfully";
+        public const string UpdateUser = "Update user successfully";
+        public const string FetchOneUser = "Fetch user info successfully";
+    }
+}

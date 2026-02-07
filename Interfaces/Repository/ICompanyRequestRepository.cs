@@ -16,6 +16,6 @@ namespace JobNexus.Interfaces.Repository
 
         Task<CompanyRequest> CreateAsync(CreateCompanyRequestDto createCompanyRequestDto, string businessLicenseUrl, string employmentContracUrl, string userId);
 
-        Task<CompanyRequest?> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto);
+        Task<CompanyRequest> UpdateStatusAsync(CompanyRequest companyRequest, UpdateCompanyRequestDto updateCompanyRequestDto);
     }
 }

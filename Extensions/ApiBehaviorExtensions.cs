@@ -1,4 +1,5 @@
-﻿using JobNexus.Helpers.Utils;
+﻿using JobNexus.Common.Constant;
+using JobNexus.Helpers.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobNexus.Extensions
@@ -17,12 +18,8 @@ namespace JobNexus.Extensions
                         .Select(e => e.ErrorMessage)
                         .ToList();
 
-                    return new BadRequestObjectResult(new ApiErrorResponse()
-                    {
-                        statusCode = StatusCodes.Status400BadRequest,
-                        message = messages,
-                        error = "Bad request"
-                    });
+                    return new BadRequestObjectResult(new ApiErrorResponse(StatusCodes.Status400BadRequest, 
+                                                                           messages, Error.ValidationFailed));
                 };
             });
 

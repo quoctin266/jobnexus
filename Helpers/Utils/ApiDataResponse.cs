@@ -2,11 +2,11 @@
 {
     public class ApiDataResponse<T>
     {
-        public int statusCode { get; set; }
+        public int statusCode { get; init; }
 
-        public string message { get; set; } = "";
+        public string message { get; init; } = "";
 
-        public T? data { get; set; }
+        public T? data { get; init; }
     }
 
     public sealed class VoidType { }
