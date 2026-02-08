@@ -1,11 +1,10 @@
-﻿using JobNexus.Dtos.CompanyEmployee;
-using JobNexus.Models;
+﻿using JobNexus.Models;
 
 namespace JobNexus.Interfaces.Repository
 {
     public interface ICompanyEmployeeRepository
     {
-        Task<CompanyEmployee> CreateAsync(CreateCompanyEmployeeDto createCompanyEmployeeDto);
+        Task<CompanyEmployee> CreateAsync(CompanyEmployee companyEmployee);
 
         Task<CompanyEmployee?> GetActiveEmploymentAsync(string userId);
 

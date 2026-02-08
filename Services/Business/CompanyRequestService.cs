@@ -123,7 +123,7 @@ namespace JobNexus.Services.Business
 
                     var company = await _companyRepository.CreateAsync(companyRequest);
 
-                    var createCompanyEmployeeDto = new CreateCompanyEmployeeDto
+                    var companyEmployee = new CompanyEmployee
                     {
                         EmploymentContractUrl = companyRequest.EmploymentContractUrl,
                         CompanyId = company.Id,
@@ -131,7 +131,7 @@ namespace JobNexus.Services.Business
                         CompanyRole = CompanyRole.Owner,
                     };
 
-                    await _companyEmployeeRepository.CreateAsync(createCompanyEmployeeDto);
+                    await _companyEmployeeRepository.CreateAsync(companyEmployee);
                        
                     var user = await _accountRepository.GetByIdAsync(companyRequest.AppUserId);
 

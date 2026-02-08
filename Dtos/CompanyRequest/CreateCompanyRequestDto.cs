@@ -1,4 +1,5 @@
-﻿using JobNexus.Helpers.Attributes;
+﻿using JobNexus.Common.Constant.Messages;
+using JobNexus.Helpers.Attributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace JobNexus.Dtos.CompanyRequest
@@ -6,7 +7,7 @@ namespace JobNexus.Dtos.CompanyRequest
     public class CreateCompanyRequestDto
     {
         [Required]
-        [MaxLength(50, ErrorMessage = "Can not exceed 50 characters")]
+        [MaxLength(50, ErrorMessage = ValidationMessages.CompanyNameMaxLength)]
         public string Name { get; set; } = "";
 
         [Required]
@@ -16,7 +17,7 @@ namespace JobNexus.Dtos.CompanyRequest
         public string Description { get; set; } = "";
 
         [Required]
-        [MaxLength(50, ErrorMessage = "Can not exceed 50 characters")]
+        [MaxLength(50, ErrorMessage = ValidationMessages.TINMaxLength)]
         public string TIN { get; set; } = "";
 
         [Required]

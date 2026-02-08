@@ -1,4 +1,5 @@
-﻿using JobNexus.Common.Enum;
+﻿using JobNexus.Common.Constant.Messages;
+using JobNexus.Common.Enum;
 using JobNexus.Helpers.Attributes;
 using System.ComponentModel.DataAnnotations;
 
@@ -17,7 +18,7 @@ namespace JobNexus.Dtos.CompanyEmployee
         public required string AppUserId { get; set; }
 
         [Required]
-        [ValidEnum(typeof(CompanyRole), ErrorMessage = "Invalid role value.")]
+        [ValidEnum(typeof(CompanyRole), ErrorMessage = ValidationMessages.CompanyRoleValue)]
         public CompanyRole CompanyRole { get; set; }
     }
 }

@@ -9,13 +9,13 @@ namespace JobNexus.Interfaces.Repository
     {
         Task<IdentityResult> CreateUserAsync(AppUser user, string password);
 
+        Task<AppUser> UpdateUserAsync(AppUser user, UpdateUserDto updateUserDto);
+
+        Task<IdentityResult> DeleteAsync(AppUser user);
+
         Task<IdentityResult> UpdateUserRoleAsync(AppUser user, Role role);
 
-        Task<AppUser?> UpdateUserAsync(string id, UpdateUserDto updateUserDto);
-
         Task<AppUser?> GetByIdAsync(string id);
-
-        Task<AppUser?> DeleteAsync(string id);
 
         Task<AppUser?> GetByEmailAsync(string email);
 

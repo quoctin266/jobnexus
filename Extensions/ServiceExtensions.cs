@@ -13,6 +13,8 @@ namespace JobNexus.Extensions
             services.AddSingleton<IBlobStorageService, BlobStorageService>();
 
             // business services
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICompanyRequestService, CompanyRequestService>();
             services.AddScoped<ICompanyEmployeeService, CompanyEmployeeService>();
 

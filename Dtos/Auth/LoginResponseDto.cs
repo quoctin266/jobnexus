@@ -1,9 +1,4 @@
 ﻿namespace JobNexus.Dtos.Auth
 {
-    public class LoginResponseDto
-    {
-        public string AccessToken { get; set; } = "";
-
-        public string RefreshToken { get; set; } = "";
-    }
+    public record LoginResponseDto(string AccessToken, string RefreshToken);
 }

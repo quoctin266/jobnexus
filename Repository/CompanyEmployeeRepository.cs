@@ -29,16 +29,8 @@ namespace JobNexus.Repository
                                                   .FirstOrDefaultAsync(ce => ce.Id == CompanyEmployeeId);
         }
 
-        public async Task<CompanyEmployee> CreateAsync(CreateCompanyEmployeeDto createCompanyEmployeeDto)
+        public async Task<CompanyEmployee> CreateAsync(CompanyEmployee companyEmployee)
         {
-            var companyEmployee = new CompanyEmployee
-            {
-                CompanyId = createCompanyEmployeeDto.CompanyId,
-                AppUserId = createCompanyEmployeeDto.AppUserId,
-                EmploymentContractUrl = createCompanyEmployeeDto.EmploymentContractUrl,
-                CompanyRole = createCompanyEmployeeDto.CompanyRole,
-            };
-
             await _context.CompanyEmployees.AddAsync(companyEmployee);
             await _context.SaveChangesAsync();
 

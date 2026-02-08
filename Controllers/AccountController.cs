@@ -1,18 +1,12 @@
-﻿using JobNexus.Common.Constant;
-using JobNexus.Common.Constant.Messages;
-using JobNexus.Common.Enum;
+﻿using JobNexus.Common.Constant.Messages;
 using JobNexus.Dtos.Auth;
 using JobNexus.Dtos.User;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
-using JobNexus.Interfaces;
-using JobNexus.Interfaces.Repository;
+using JobNexus.Interfaces.BusinessService;
 using JobNexus.Mappers;
-using JobNexus.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-using static JobNexus.Helpers.Utils.MyFunctions;
 
 namespace JobNexus.Controllers
 {
@@ -20,14 +14,11 @@ namespace JobNexus.Controllers
     [Route("api/auth")]
     public class AccountController : ControllerBase
     {
-        private readonly IAccountRepository _accountRepository;
+        private readonly IAuthService _authService;
 
-        private readonly ITokenService _tokenService;
-
-        public AccountController(IAccountRepository accountRepository, ITokenService tokenService)
+        public AccountController(IAuthService authService)
         {
-            _accountRepository = accountRepository;
-            _tokenService = tokenService;
+            _authService = authService;
         }
 
         [AllowAnonymous]
@@ -35,26 +26,18 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.RegisterSuccess)]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> Register([FromBody] RegisterDto registerDto)
         {
-            var user = new AppUser
-            {
-                UserName = registerDto.Username,
-                Email = registerDto.Email
-            };
+            var result = await _authService.Register(registerDto);
 
-            var createdUser = await _accountRepository.CreateUserAsync(user, registerDto.Password);
-
-            if (createdUser.Succeeded)
+            if(!result.IsSuccess)
             {
-                var roleResult = await _accountRepository.UpdateUserRoleAsync(user, Role.User);
-                if (roleResult.Succeeded)
+                return result.StatusCode switch
                 {
-                    return StatusCode(StatusCodes.Status201Created, user.ToUserDto());
-                }
-
-                return StatusCode(500, roleResult.Errors);
+                    StatusCodes.Status400BadRequest => BadRequest(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
-            return new BadRequestObjectResult(ToErrorResponse(createdUser.Errors));
+            return StatusCode(StatusCodes.Status201Created, result.Value?.ToUserDto());
         }
 
         [AllowAnonymous]
@@ -62,23 +45,18 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.LoginSuccess)]
         public async Task<ActionResult<ApiDataResponse<LoginResponseDto>>> Login([FromBody] LoginDto loginDto)
         {
-            var unauthorizedResponse = new ErrorResponse(Error.UnAuthorized, [ErrorMessages.InvalidCredentials]);
+            var result = await _authService.Login(loginDto);
 
-            var user = await _accountRepository.GetByEmailAsync(loginDto.Email);
-
-            if (user == null) return new UnauthorizedObjectResult(unauthorizedResponse);
-
-            var result = await _accountRepository.CheckPasswordAsync(user, loginDto.Password);
-
-            if (!result.Succeeded) return new UnauthorizedObjectResult(unauthorizedResponse);
-
-            var response = new LoginResponseDto
+            if(!result.IsSuccess)
             {
-                AccessToken = await _tokenService.CreateToken(user, TokenType.AccessToken),
-                RefreshToken = await _tokenService.CreateToken(user, TokenType.RefreshToken),
-            };
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status401Unauthorized => Unauthorized(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
+            }
 
-            return StatusCode(StatusCodes.Status201Created, response);
+            return StatusCode(StatusCodes.Status201Created, result.Value);
         }
     }
 }

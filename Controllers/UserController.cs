@@ -1,9 +1,9 @@
-﻿using JobNexus.Common.Constant;
-using JobNexus.Common.Constant.Messages;
+﻿using JobNexus.Common.Constant.Messages;
 using JobNexus.Dtos.User;
 using JobNexus.Helpers.Attributes;
+using JobNexus.Helpers.Authorization;
 using JobNexus.Helpers.Utils;
-using JobNexus.Interfaces.Repository;
+using JobNexus.Interfaces.BusinessService;
 using JobNexus.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +15,13 @@ namespace JobNexus.Controllers
 
     public class UserController : ControllerBase
     {
-        private readonly IAccountRepository _accountRepository;
+        private readonly IUserService _userService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public UserController(IAccountRepository accountRepository)
+        public UserController(IUserService userService, IAuthorizationService authorizationService)
         {
-            _accountRepository = accountRepository;
+            _userService = userService;
+            _authorizationService = authorizationService;
         }
 
         [Authorize(Roles = "Admin, User")]
@@ -27,13 +29,24 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.FetchOneUser)]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> GetById([FromRoute] string id)
         {
-            var user = await _accountRepository.GetByIdAsync(id);
-            if(user == null)
+            var result = await _userService.GetById(id);
+
+            if(!result.IsSuccess)
             {
-                return new NotFoundObjectResult(new ErrorResponse(Error.NotFound, [ErrorMessages.UserNotFound]));
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
-            return Ok(user.ToUserDto());
+            var authorizationResult = await _authorizationService
+                .AuthorizeAsync(User, result.Value, Operations.Read);
+
+            if (!authorizationResult.Succeeded)
+                return Forbid();
+
+            return Ok(result.Value?.ToUserDto());
         }
 
         [Authorize(Roles = "Admin, User")]
@@ -41,13 +54,19 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.UpdateUser)]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> Update([FromRoute] string id, [FromBody] UpdateUserDto updateUserDto)
         {
-            var user = await _accountRepository.UpdateUserAsync(id, updateUserDto);
-            if (user == null)
+            var result = await _userService.Update(id, updateUserDto, User);
+
+            if(!result.IsSuccess)
             {
-                return new NotFoundObjectResult(new ErrorResponse(Error.NotFound, [ErrorMessages.UserNotFound]));
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status403Forbidden => Forbid(),
+                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
-            return Ok(user.ToUserDto());
+            return Ok(result.Value?.ToUserDto());
         }
 
         [Authorize(Roles = "Admin")]
@@ -55,13 +74,18 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.DeleteUser)]
         public async Task<ActionResult<ApiDataResponse<UserDto>>> Delete([FromRoute] string id)
         {
-            var user = await _accountRepository.DeleteAsync(id);
-            if (user == null)
+            var result = await _userService.Delete(id);
+
+            if(!result.IsSuccess)
             {
-                return new NotFoundObjectResult(new ErrorResponse(Error.NotFound, [ErrorMessages.UserNotFound]));
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                };
             }
 
-            return Ok(user.ToUserDto());
+            return Ok(null);
         }
     }
 }

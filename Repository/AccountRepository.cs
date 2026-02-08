@@ -56,37 +56,22 @@ namespace JobNexus.Repository
             return await _signInManager.CheckPasswordSignInAsync(user, password, false);
         }
 
-        public async Task<AppUser?> UpdateUserAsync(string id, UpdateUserDto updateUserDto)
+        public async Task<AppUser> UpdateUserAsync(AppUser user, UpdateUserDto updateUserDto)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if(user != null)
-            {
-                user.UserName = updateUserDto.Username;
-                user.DateOfBirth = DateTime.Parse(updateUserDto.DateOfBirth, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-                user.Gender = updateUserDto.Gender;
-                user.Address = updateUserDto.Address;
-                user.PhoneNumber = updateUserDto.PhoneNumber;
+            user.UserName = updateUserDto.Username;
+            user.DateOfBirth = DateTime.Parse(updateUserDto.DateOfBirth, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+            user.Gender = updateUserDto.Gender;
+            user.Address = updateUserDto.Address;
+            user.PhoneNumber = updateUserDto.PhoneNumber;
 
-                await _userManager.UpdateAsync(user);
-            }
+            await _userManager.UpdateAsync(user);
 
             return user;
         }
 
-        public async Task<AppUser?> DeleteAsync(string id)
+        public async Task<IdentityResult> DeleteAsync(AppUser user)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if(user != null)
-            {
-                var result = await _userManager.DeleteAsync(user);
-                if (!result.Succeeded) {
-                    Console.WriteLine("Failed to delete user:", result.Errors);
-
-                    return null;
-                };
-            }
-
-            return user;
+            return await _userManager.DeleteAsync(user);
         }
     }
 }

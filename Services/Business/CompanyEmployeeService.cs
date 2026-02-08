@@ -99,7 +99,7 @@ namespace JobNexus.Services.Business
             {
                 var employmentContractUrl = await _blobStorageService.UploadFileAsync(createFormDto.EmploymentContract);
 
-                var createCompanyEmployeeDto = new CreateCompanyEmployeeDto
+                var companyEmployee = new CompanyEmployee
                 {
                     AppUserId = createFormDto.AppUserId,
                     CompanyId = createFormDto.CompanyId,
@@ -107,7 +107,7 @@ namespace JobNexus.Services.Business
                     EmploymentContractUrl = employmentContractUrl,
                 };
 
-                var companyEmployee = await _companyEmployeeRepository.CreateAsync(createCompanyEmployeeDto);
+                await _companyEmployeeRepository.CreateAsync(companyEmployee);
 
                 await _accountRepository.UpdateUserRoleAsync(user, Role.Employer);
 

@@ -6,19 +6,20 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 namespace JobNexus.Helpers.Authorization
 {
-    public class CompanyRequestOwnerHandler : AuthorizationHandler<OperationAuthorizationRequirement, CompanyRequest>
+    public class UserOwnerHandler : AuthorizationHandler<OperationAuthorizationRequirement, AppUser>
     {
         protected override Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
         OperationAuthorizationRequirement requirement,
-        CompanyRequest resource)
+        AppUser resource)
         {
             if (context.User == null || resource == null)
             {
                 return Task.CompletedTask;
             }
 
-            if (requirement.Name != Operations.Read.Name)
+            if (requirement.Name != Operations.Read.Name &&
+                requirement.Name != Operations.Update.Name)
             {
                 return Task.CompletedTask;
             }
@@ -33,7 +34,7 @@ namespace JobNexus.Helpers.Authorization
                 context.Succeed(requirement);
             }
 
-            if (resource.AppUserId == userId)
+            if (resource.Id == userId)
                 context.Succeed(requirement);
 
             return Task.CompletedTask;
