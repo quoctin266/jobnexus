@@ -5,12 +5,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JobNexus.Dtos.CompanyRequest
 {
-    public class UpdateCompanyRequestDto
+    public record UpdateCompanyRequestDto
     {
         [Required]
         [ValidEnum(typeof(CompanyRequestStatus), ErrorMessage = ValidationMessages.CompanyRequestStatus)]
-        public CompanyRequestStatus Status { get; set; }
+        public CompanyRequestStatus Status { get; init; }
 
-        public string Reason { get; set; } = "";
+        public string Reason { get; init; } = "";
     }
 }

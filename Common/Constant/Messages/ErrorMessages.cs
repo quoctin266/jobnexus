@@ -26,5 +26,9 @@
         public const string CompanyRequestNotFound = "Request not found with provided id";
         public const string CompanyRequestConflict = "Requests with status pending or approved already existed";
         public const string InvalidCompanyRequestStatusUpdate = "Can not update to status Pending";
+
+        // Skill Messages
+        public const string SkillNotFound = "Skill not found with provided id";
+        public const string SkillInUse = "Cannot delete skill that is in use";
     }
 }

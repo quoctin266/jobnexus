@@ -5,20 +5,20 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JobNexus.Dtos.CompanyEmployee
 {
-    public class CreateFormDto
+    public record CreateFormDto
     {
         [Required]
         [ValidExtensionsAttribute([".pdf", ".docx", ".jpg", ".png", ".jpeg"])]
-        public required IFormFile EmploymentContract { get; set; }
+        public required IFormFile EmploymentContract { get; init; }
 
         [Required]
-        public int CompanyId { get; set; }
+        public int CompanyId { get; init; }
 
         [Required]
-        public required string AppUserId { get; set; }
+        public required string AppUserId { get; init; }
 
         [Required]
         [ValidEnum(typeof(CompanyRole), ErrorMessage = ValidationMessages.CompanyRoleValue)]
-        public CompanyRole CompanyRole { get; set; }
+        public CompanyRole CompanyRole { get; init; }
     }
 }

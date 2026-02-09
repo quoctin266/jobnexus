@@ -4,18 +4,18 @@ using JobNexus.Dtos.User;
 
 namespace JobNexus.Dtos.CompanyEmployee
 {
-    public class CompanyEmployeeDto
+    public record CompanyEmployeeDto
     {
-        public int Id { get; set; }
+        public int Id { get; init; }
 
-        public CompanyRole CompanyRole { get; set; }
+        public CompanyRole CompanyRole { get; init; }
 
-        public string EmploymentContractUrl { get; set; } = "";
+        public string EmploymentContractUrl { get; init; } = "";
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; init; }
 
-        public CompanyDto? Company { get; set; }
+        public CompanyDto? Company { get; init; }
 
-        public UserDto? AppUser { get; set; }
+        public UserDto? AppUser { get; init; }
     }
 }

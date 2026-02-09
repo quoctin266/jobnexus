@@ -96,7 +96,7 @@ namespace JobNexus.Repository
         public async Task<CompanyRequest> CreateAsync(CreateCompanyRequestDto createCompanyRequestDto, string businessLicenseUrl, 
                                                       string employmentContracUrl, string userId)
         {
-            var CompanyRequest = new CompanyRequest
+            var companyRequest = new CompanyRequest
             {
                 Name = createCompanyRequestDto.Name,
                 Address = createCompanyRequestDto.Address,
@@ -108,12 +108,12 @@ namespace JobNexus.Repository
                 AppUserId = userId,
             };
 
-            await _context.CompanyRequests.AddAsync(CompanyRequest);
+            await _context.CompanyRequests.AddAsync(companyRequest);
             await _context.SaveChangesAsync();
 
-            await _context.Entry(CompanyRequest).Reference(cr => cr.AppUser).LoadAsync();
+            await _context.Entry(companyRequest).Reference(cr => cr.AppUser).LoadAsync();
 
-            return CompanyRequest;
+            return companyRequest;
         }
 
         public async Task<CompanyRequest> UpdateStatusAsync(CompanyRequest companyRequest, UpdateCompanyRequestDto updateCompanyRequestDto)

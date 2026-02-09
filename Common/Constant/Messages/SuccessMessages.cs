@@ -20,5 +20,11 @@
         public const string DeleteUser = "Delete user successfully";
         public const string UpdateUser = "Update user successfully";
         public const string FetchOneUser = "Fetch user info successfully";
+
+        // Skill Messages
+        public const string FetchListSkill = "Fetch skill list successfully";
+        public const string CreateSkill = "Create skill successfully";
+        public const string UpdateSkill = "Update skill successfully";
+        public const string DeleteSkill = "Delete skill successfully";
     }
 }

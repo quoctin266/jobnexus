@@ -1,7 +1,7 @@
 ﻿namespace JobNexus.Dtos.File
 {
-    public class UploadResponseDto
+    public record UploadResponseDto
     {
-        public string FileUrl { get; set; } = "";
+        public string FileUrl { get; init; } = "";
     }
 }

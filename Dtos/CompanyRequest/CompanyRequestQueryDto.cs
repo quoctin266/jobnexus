@@ -6,17 +6,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JobNexus.Dtos.CompanyRequest
 {
-    public class CompanyRequestQueryDto : BaseQueryDto
+    public record CompanyRequestQueryDto : BaseQueryDto
     {
         [MaxLength(50, ErrorMessage = ValidationMessages.CompanyNameMaxLength)]
-        public string? CompanyName { get; set; }
+        public string? CompanyName { get; init; }
 
         [MaxLength(50, ErrorMessage = ValidationMessages.TINMaxLength)]
-        public string? TIN { get; set; }
+        public string? TIN { get; init; }
 
         [ValidEnum(typeof(CompanyRequestStatus), ErrorMessage = ValidationMessages.CompanyRequestStatus)]
-        public CompanyRequestStatus? Status { get; set; }
+        public CompanyRequestStatus? Status { get; init; }
 
-        public string? UserId { get; set; }
+        public string? UserId { get; init; }
     }
 }

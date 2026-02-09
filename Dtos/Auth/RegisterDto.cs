@@ -3,18 +3,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace JobNexus.Dtos.Auth
 {
-    public class RegisterDto
+    public record RegisterDto
     {
             [Required]
             [MaxLength(20, ErrorMessage = ValidationMessages.UsernameMaxLength)]
-            public string Username { get; set; } = "";
+            public string Username { get; init; } = "";
 
             [Required]
             [EmailAddress]
             [MaxLength(20, ErrorMessage = ValidationMessages.EmailMaxLength)]
-            public string Email { get; set; } = "";
+            public string Email { get; init; } = "";
 
             [Required]
-            public string Password { get; set; } = "";
+            public string Password { get; init; } = "";
     }
 }

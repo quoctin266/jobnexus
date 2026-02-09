@@ -30,10 +30,12 @@ namespace JobNexus.Controllers
 
             if (!result.IsSuccess)
             {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
                 return result.StatusCode switch
                 {
-                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                    StatusCodes.Status404NotFound => NotFound(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
                 };
             }
 
@@ -51,12 +53,14 @@ namespace JobNexus.Controllers
 
             if (!result.IsSuccess)
             {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
                 return result.StatusCode switch
                 {
-                    StatusCodes.Status400BadRequest => BadRequest(new ErrorResponse(result.Error, result.Messages)),
+                    StatusCodes.Status400BadRequest => BadRequest(response),
                     StatusCodes.Status403Forbidden => Forbid(),
-                    StatusCodes.Status404NotFound => NotFound(new ErrorResponse(result.Error, result.Messages)),
-                    _ => StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse(result.Error, result.Messages))
+                    StatusCodes.Status404NotFound => NotFound(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
                 };
             }
 

@@ -1,19 +1,19 @@
 ﻿namespace JobNexus.Dtos.User
 {
-    public class UserDto
+    public record UserDto
     {
-        public string Id { get; set; } = "";
+        public string Id { get; init; } = "";
 
-        public string Username { get; set; } = "";
+        public string Username { get; init; } = "";
 
-        public string Email { get; set; } = "";
+        public string Email { get; init; } = "";
 
-        public DateTime DateOfBirth { get; set; }
+        public DateTime DateOfBirth { get; init; }
 
-        public string Gender { get; set; } = "";
+        public string Gender { get; init; } = "";
 
-        public string Address { get; set; } = "";
+        public string Address { get; init; } = "";
 
-        public string PhoneNumber { get; set; } = "";
+        public string PhoneNumber { get; init; } = "";
     }
 }

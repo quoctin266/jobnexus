@@ -1,13 +1,13 @@
 ﻿namespace JobNexus.Helpers.Utils
 {
-    public class BaseQueryDto
+    public record BaseQueryDto
     {
-        public string? SortBy { get; set; }
+        public string? SortBy { get; init; }
 
-        public bool IsDescending { get; set; } = false;
+        public bool IsDescending { get; init; } = false;
 
-        public int PageNumber { get; set; } = 1;
+        public int PageNumber { get; init; } = 1;
 
-        public int PageSize { get; set; } = 10;
+        public int PageSize { get; init; } = 10;
     }
 }

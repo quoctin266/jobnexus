@@ -1,21 +1,21 @@
 ﻿namespace JobNexus.Dtos.Company
 {
-    public class CompanyDto
+    public record CompanyDto
     {
-        public int Id { get; set; }
+        public int Id { get; init; }
 
-        public string Name { get; set; } = "";
+        public string Name { get; init; } = "";
 
-        public string Address { get; set; } = "";
+        public string Address { get; init; } = "";
 
-        public string Description { get; set; } = "";
+        public string Description { get; init; } = "";
 
-        public string TIN { get; set; } = "";
+        public string TIN { get; init; } = "";
 
-        public string BusinessLicenseUrl { get; set; } = "";
+        public string BusinessLicenseUrl { get; init; } = "";
 
-        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset CreatedAt { get; init; }
 
-        public DateTimeOffset UpdatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; init; }
     }
 }
