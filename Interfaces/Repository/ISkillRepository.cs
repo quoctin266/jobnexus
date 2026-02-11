@@ -6,6 +6,8 @@ namespace JobNexus.Interfaces.Repository
 {
     public interface ISkillRepository
     {
+        Task<IEnumerable<Skill>> FindSkills(List<int> skillIds);
+
         Task<QueryResponse<Skill>> GetAllAsync(SkillQueryDto skillQueryDto);
 
         Task<Skill?> GetByIdAsync(int id);

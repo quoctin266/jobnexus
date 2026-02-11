@@ -2,7 +2,6 @@
 using JobNexus.Common.Constant.Messages;
 using JobNexus.Common.Enum;
 using JobNexus.Data;
-using JobNexus.Dtos.CompanyEmployee;
 using JobNexus.Dtos.CompanyRequest;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces;

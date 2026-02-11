@@ -72,6 +72,13 @@ namespace JobNexus.Repository
             return skill.Jobs.Count != 0;
         }
 
+        public async Task<IEnumerable<Skill>> FindSkills(List<int> skillIds)
+        {
+            return await _context.Skills
+                .Where(sk => skillIds.Contains(sk.Id))
+                .ToListAsync();
+        }
+
         public async Task<Skill> CreateAsync(CreateSkillDto createSkillDto)
         {
             var skill = new Skill

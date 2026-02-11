@@ -26,5 +26,9 @@
         public const string CreateSkill = "Create skill successfully";
         public const string UpdateSkill = "Update skill successfully";
         public const string DeleteSkill = "Delete skill successfully";
+
+        // Job Messages
+        public const string CreateJob = "Create job successfully";
+        public const string FetchOneJob = "Fetch job info successfully";
     }
 }

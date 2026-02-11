@@ -1,0 +1,41 @@
+﻿using JobNexus.Dtos.Company;
+using JobNexus.Dtos.CompanyEmployee;
+using JobNexus.Dtos.Skill;
+
+namespace JobNexus.Dtos.Job
+{
+    public record JobDto
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; } = "";
+
+        public string Location { get; set; } = "";
+
+        public decimal SalaryMin { get; set; }
+
+        public decimal SalaryMax { get; set; }
+
+        public int Quantity { get; set; }
+
+        public string Level { get; set; } = "";
+
+        public string Description { get; set; } = "";
+
+        public DateTimeOffset StartDate { get; set; }
+
+        public DateTimeOffset EndDate { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public CompanyDto? Company { get; set; }
+
+        public CompanyEmployeeDto? CreatedBy { get; set; }
+
+        public List<SkillDto> Skills { get; set; } = [];
+
+        public DateTimeOffset CreatedAt { get; set; }
+
+        public DateTimeOffset UpdatedAt { get; set; }
+    }
+}

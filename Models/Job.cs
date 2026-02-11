@@ -28,7 +28,7 @@ namespace JobNexus.Models
 
         public DateTimeOffset EndDate { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = false;
 
         public int CompanyId { get; set; }
 

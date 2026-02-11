@@ -18,6 +18,7 @@
         public const string InvalidEmployeeRole = "Cannot create employee with owner role";
         public const string DifferentCompany = "Cannot add employee to another company";
         public const string UserAlreadyEmployed = "User already belongs to a company or has a pending request";
+        public const string ActiveEmploymentNotFound = "User doesn't have any active employment";
 
         // Company Messages
         public const string CompanyNotFound = "Company not found with provided id";
@@ -30,5 +31,12 @@
         // Skill Messages
         public const string SkillNotFound = "Skill not found with provided id";
         public const string SkillInUse = "Cannot delete skill that is in use";
+
+        // Job Messages
+        public const string JobNotFound = "Job not found with provided id";
+        public const string InvalidSalaryRange = "Max salary must be bigger than min salary";
+        public const string InvalidDateRange = "End date can not be before start date";
+        public const string InvalidDateValue = "End date and start date can not be in the past";
+        public const string InvalidJobDuration = "Job duration must be at least 7 days";
     }
 }
