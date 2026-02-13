@@ -1,11 +1,13 @@
 ﻿using JobNexus.Common.Constant;
 using JobNexus.Common.Constant.Messages;
+using JobNexus.Common.Enum;
 using JobNexus.Data;
 using JobNexus.Dtos.Job;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces.BusinessService;
 using JobNexus.Interfaces.Repository;
+using JobNexus.Mappers;
 using JobNexus.Models;
 using System.Security.Claims;
 
@@ -33,6 +35,20 @@ namespace JobNexus.Services.Business
             _companyEmployeeRepository = companyEmployeeRepository;
         }
 
+        public async Task<ServiceResult<QueryResponse<JobDto>>> GetAll(JobQueryDto jobQueryDto)
+        {
+            var data = await _jobRepository.GetAllAsync(jobQueryDto);
+
+            return ServiceResult<QueryResponse<JobDto>>.Success(new QueryResponse<JobDto>
+            {
+                TotalPages = data.TotalPages,
+                PageNumber = data.PageNumber,
+                PageSize = data.PageSize,
+                TotalItems = data.TotalItems,
+                Items = data.Items.Select(j => j.ToJobDto())
+            });
+        }
+
         public async Task<ServiceResult<Job>> FindById(int id)
         {
             var job = await _jobRepository.GetByIdAsync(id);
@@ -44,7 +60,7 @@ namespace JobNexus.Services.Business
             return ServiceResult<Job>.Success(job);
         }
 
-        public async Task<ServiceResult<Job>> CreateAsync(CreateJobDto createJobDto, ClaimsPrincipal user)
+        public async Task<ServiceResult<Job>> Create(CreateJobDto createJobDto, ClaimsPrincipal user)
         {
             // Max salary must be greater than min salary
             if (createJobDto.SalaryMax <= createJobDto.SalaryMin)
@@ -79,7 +95,7 @@ namespace JobNexus.Services.Business
                                                                   Error.NotFound,
                                                                   [ErrorMessages.ActiveEmploymentNotFound]);
             
-            var skills = await _skillRepository.FindSkills(createJobDto.SkillIds);
+            var skills = await _skillRepository.FindAsync(createJobDto.SkillIds);
 
             var job = new Job
             {
@@ -101,5 +117,34 @@ namespace JobNexus.Services.Business
 
             return ServiceResult<Job>.Success(job);
         }
+
+        public async Task<ServiceResult<Job>> UpdateStatus(int id, UpdateJobStatusDto updateJobStatusDto, ClaimsPrincipal user)
+        {
+            var userId = user.GetUserId()!;
+            var userEmployment = await _companyEmployeeRepository.GetActiveEmploymentAsync(userId);
+
+            // User must be in a company to update job status
+            if (userEmployment is null)
+                return ServiceResult<Job>.Failure(StatusCodes.Status404NotFound,
+                                                                  Error.NotFound,
+                                                                  [ErrorMessages.ActiveEmploymentNotFound]);
+
+            // Only company owner can update job status
+            if (userEmployment.CompanyRole != CompanyRole.Owner)
+                return ServiceResult<Job>.Failure(StatusCodes.Status403Forbidden,
+                                                                  Error.Forbidden,
+                                                                  [ErrorMessages.NoPermission]);
+
+            var job = await _jobRepository.GetByIdAsync(id);
+            if (job is null)
+                return ServiceResult<Job>.Failure(StatusCodes.Status404NotFound,
+                                                                  Error.NotFound,
+                                                                  [ErrorMessages.JobNotFound]);
+
+            await _jobRepository.UpdateStatus(job, updateJobStatusDto);
+
+            return ServiceResult<Job>.Success(job);
+        }
+
     }
 }

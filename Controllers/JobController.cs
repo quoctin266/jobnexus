@@ -20,6 +20,17 @@ namespace JobNexus.Controllers
             _jobService = jobService;
         }
 
+        [AllowAnonymous]
+        [HttpGet]
+        [ResponseMessage(message: SuccessMessages.FetchListJob)]
+        public async Task<ActionResult<ApiDataResponse<QueryResponse<JobDto>>>> GetList([FromQuery] JobQueryDto jobQueryDto)
+        {
+            var result = await _jobService.GetAll(jobQueryDto);
+
+            return Ok(result.Value);
+        }
+
+        [AllowAnonymous]
         [HttpGet("{id}")]
         [ResponseMessage(message: SuccessMessages.FetchOneJob)]
         public async Task<ActionResult<ApiDataResponse<JobDto>>> GetById([FromRoute] int id)
@@ -45,7 +56,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.CreateJob)]
         public async Task<ActionResult<ApiDataResponse<JobDto>>> Create([FromBody] CreateJobDto createJobDto)
         {
-            var result = await _jobService.CreateAsync(createJobDto, User);
+            var result = await _jobService.Create(createJobDto, User);
 
             if (!result.IsSuccess)
             {
@@ -60,6 +71,28 @@ namespace JobNexus.Controllers
             }
 
             return StatusCode(StatusCodes.Status201Created, result.Value?.ToJobDto());
+        }
+
+        [Authorize(Roles = "Employer")]
+        [HttpPatch("status/{id}")]
+        [ResponseMessage(message: SuccessMessages.UpdateJobStatus)]
+        public async Task<ActionResult<ApiDataResponse<JobDto>>> UpdateStatus([FromRoute] int id, [FromBody] UpdateJobStatusDto updateJobStatusDto)
+        {
+            var result = await _jobService.UpdateStatus(id, updateJobStatusDto, User);
+
+            if (!result.IsSuccess)
+            {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status403Forbidden => Forbid(),
+                    StatusCodes.Status404NotFound => NotFound(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+                };
+            }
+
+            return Ok(result.Value?.ToJobDto());
         }
     }
 }

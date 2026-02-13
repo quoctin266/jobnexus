@@ -19,5 +19,17 @@ namespace JobNexus.Mappers
                 UpdatedAt = company.UpdatedAt
             };
         }
+
+        public static CompanySummaryDto ToCompanySummaryDto(this Company company)
+        {
+            return new CompanySummaryDto
+            {
+                Id = company.Id,
+                Name = company.Name,
+                Address = company.Address,
+                Description = company.Description,
+                TIN = company.TIN
+            };
+        }
     }
 }

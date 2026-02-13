@@ -6,8 +6,8 @@ namespace JobNexus.Interfaces.BusinessService
 {
     public interface ICompanyEmployeeService
     {
-        Task<ServiceResult<CompanyEmployee>> CreateAsync(CreateFormDto createFormDto, string userId);
+        Task<ServiceResult<CompanyEmployee>> Create(CreateFormDto createFormDto, string userId);
 
-        Task<ServiceResult<CompanyEmployee>> GetByIdAsync(int CompanyEmployeeId);
+        Task<ServiceResult<CompanyEmployee>> GetById(int CompanyEmployeeId);
     }
 }

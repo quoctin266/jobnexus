@@ -7,7 +7,11 @@ namespace JobNexus.Interfaces.BusinessService
 {
     public interface IJobService
     {
-        Task<ServiceResult<Job>> CreateAsync(CreateJobDto createJobDto, ClaimsPrincipal user);
+        Task<ServiceResult<QueryResponse<JobDto>>> GetAll(JobQueryDto jobQueryDto);
+
+        Task<ServiceResult<Job>> UpdateStatus(int id, UpdateJobStatusDto updateJobStatusDto, ClaimsPrincipal user);
+
+        Task<ServiceResult<Job>> Create(CreateJobDto createJobDto, ClaimsPrincipal user);
 
         Task<ServiceResult<Job>> FindById(int id);
     }

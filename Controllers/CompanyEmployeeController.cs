@@ -26,7 +26,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.FetchOneEmployee)]
         public async Task<ActionResult<ApiDataResponse<CompanyEmployeeDto>>> GetById([FromRoute] int id)
         {
-            var result = await _companyEmployeeService.GetByIdAsync(id);
+            var result = await _companyEmployeeService.GetById(id);
 
             if (!result.IsSuccess)
             {
@@ -49,7 +49,7 @@ namespace JobNexus.Controllers
         public async Task<ActionResult<ApiDataResponse<CompanyEmployeeDto>>> Create([FromForm] CreateFormDto createFormDto)
         {
             var userId = User.GetUserId();
-            var result = await _companyEmployeeService.CreateAsync(createFormDto, userId!);
+            var result = await _companyEmployeeService.Create(createFormDto, userId!);
 
             if (!result.IsSuccess)
             {

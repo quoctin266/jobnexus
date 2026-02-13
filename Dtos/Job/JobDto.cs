@@ -28,11 +28,11 @@ namespace JobNexus.Dtos.Job
 
         public bool IsActive { get; set; }
 
-        public CompanyDto? Company { get; set; }
+        public CompanySummaryDto? Company { get; set; }
 
-        public CompanyEmployeeDto? CreatedBy { get; set; }
+        public CompanyEmployeeSummaryDto? CreatedBy { get; set; }
 
-        public List<SkillDto> Skills { get; set; } = [];
+        public List<SkillSummaryDto> Skills { get; set; } = [];
 
         public DateTimeOffset CreatedAt { get; set; }
 

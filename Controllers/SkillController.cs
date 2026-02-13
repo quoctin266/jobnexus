@@ -1,11 +1,9 @@
 ﻿using JobNexus.Common.Constant.Messages;
-using JobNexus.Dtos.CompanyRequest;
 using JobNexus.Dtos.Skill;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces.BusinessService;
 using JobNexus.Mappers;
-using JobNexus.Services.Business;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +24,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.FetchListSkill)]
         public async Task<ActionResult<ApiDataResponse<QueryResponse<SkillDto>>>> GetList([FromQuery] SkillQueryDto skillQueryDto)
         {
-            var result = await _skillService.GetAllAsync(skillQueryDto);
+            var result = await _skillService.GetAll(skillQueryDto);
 
             return Ok(result.Value);
         }
@@ -36,7 +34,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.CreateSkill)]
         public async Task<ActionResult<ApiDataResponse<SkillDto>>> Create([FromForm] CreateSkillDto createSkillDto)
         {
-            var result = await _skillService.CreateAsync(createSkillDto);
+            var result = await _skillService.Create(createSkillDto);
 
             if (!result.IsSuccess)
             {
@@ -56,7 +54,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.UpdateSkill)]
         public async Task<ActionResult<ApiDataResponse<SkillDto>>> Update([FromRoute] int id, [FromForm] UpdateSkillDto updateSkillDto)
         {
-            var result = await _skillService.UpdateAsync(id, updateSkillDto);
+            var result = await _skillService.Update(id, updateSkillDto);
 
             if (!result.IsSuccess)
             {
@@ -77,7 +75,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.DeleteSkill)]
         public async Task<ActionResult<ApiDataResponse<VoidType>>> Delete([FromRoute] int id)
         {
-            var result = await _skillService.DeleteAsync(id);
+            var result = await _skillService.Delete(id);
 
             if (!result.IsSuccess)
             {

@@ -16,5 +16,14 @@ namespace JobNexus.Mappers
                 UpdatedAt = skill.UpdatedAt
             };
         }
+
+        public static SkillSummaryDto ToSkillSummaryDto(this Skill skill)
+        {
+            return new SkillSummaryDto
+            {
+                Id = skill.Id,
+                Name = skill.Name,
+            };
+        }
     }
 }

@@ -65,14 +65,14 @@ namespace JobNexus.Repository
             return await _context.Skills.FindAsync(id);
         }
 
-        public async Task<bool> IsInUse(Skill skill)
+        public async Task<bool> CheckUsageAsync(Skill skill)
         {
             await _context.Entry(skill).Collection(sk => sk.Jobs).LoadAsync();
 
             return skill.Jobs.Count != 0;
         }
 
-        public async Task<IEnumerable<Skill>> FindSkills(List<int> skillIds)
+        public async Task<IEnumerable<Skill>> FindAsync(List<int> skillIds)
         {
             return await _context.Skills
                 .Where(sk => skillIds.Contains(sk.Id))

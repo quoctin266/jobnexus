@@ -30,5 +30,7 @@
         // Job Messages
         public const string CreateJob = "Create job successfully";
         public const string FetchOneJob = "Fetch job info successfully";
+        public const string FetchListJob = "Fetch job list successfully";
+        public const string UpdateJobStatus = "Update job status successfully";
     }
 }

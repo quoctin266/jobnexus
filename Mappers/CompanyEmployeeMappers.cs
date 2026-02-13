@@ -17,5 +17,16 @@ namespace JobNexus.Mappers
                 AppUser = companyEmployee.AppUser?.ToUserDto()
             };
         }
+
+        public static CompanyEmployeeSummaryDto ToCompanyEmployeeSummaryDto(this CompanyEmployee companyEmployee)
+        {
+            return new CompanyEmployeeSummaryDto
+            {
+                Id = companyEmployee.Id,
+                CompanyRole = companyEmployee.CompanyRole,
+                IsActive = companyEmployee.IsActive,
+                User = companyEmployee.AppUser?.ToUserSummaryDto()
+            };
+        }
     }
 }

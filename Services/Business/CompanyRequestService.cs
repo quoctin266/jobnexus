@@ -40,7 +40,7 @@ namespace JobNexus.Services.Business
             _accountRepository = accountRepository;
         }
 
-        public async Task<ServiceResult<QueryResponse<CompanyRequestDto>>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, 
+        public async Task<ServiceResult<QueryResponse<CompanyRequestDto>>> GetAll(CompanyRequestQueryDto companyRequestQueryDto, 
                                                                                        ClaimsPrincipal user)
         {
             var data = await _companyRequestRepository.GetAllAsync(companyRequestQueryDto, user);
@@ -55,7 +55,7 @@ namespace JobNexus.Services.Business
             });
         }
 
-        public async Task<ServiceResult<CompanyRequest>> GetByIdAsync(int requestId)
+        public async Task<ServiceResult<CompanyRequest>> GetById(int requestId)
         {
             var companyRequest = await _companyRequestRepository.GetByIdAsync(requestId);
 
@@ -68,7 +68,7 @@ namespace JobNexus.Services.Business
             return ServiceResult<CompanyRequest>.Success(companyRequest);
         }
 
-        public async Task<ServiceResult<CompanyRequest>> CreateRequestAsync(string userId, CreateCompanyRequestDto createCompanyRequestDto)
+        public async Task<ServiceResult<CompanyRequest>> Create(string userId, CreateCompanyRequestDto createCompanyRequestDto)
         {
             // Check if a pending or approved request already exists for the user
             if (await _companyRequestRepository.CheckPendingOrApprovedAsync(userId) is not null)
@@ -87,7 +87,7 @@ namespace JobNexus.Services.Business
             return ServiceResult<CompanyRequest>.Success(companyRequest);
         }
 
-        public async Task<ServiceResult<CompanyRequest>> UpdateStatusAsync(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
+        public async Task<ServiceResult<CompanyRequest>> UpdateStatus(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
         {
             if(updateCompanyRequestDto.Status == CompanyRequestStatus.Pending)
             {

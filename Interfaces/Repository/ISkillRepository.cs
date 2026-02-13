@@ -6,13 +6,13 @@ namespace JobNexus.Interfaces.Repository
 {
     public interface ISkillRepository
     {
-        Task<IEnumerable<Skill>> FindSkills(List<int> skillIds);
+        Task<IEnumerable<Skill>> FindAsync(List<int> skillIds);
 
         Task<QueryResponse<Skill>> GetAllAsync(SkillQueryDto skillQueryDto);
 
         Task<Skill?> GetByIdAsync(int id);
 
-        Task<bool> IsInUse(Skill skill);
+        Task<bool> CheckUsageAsync(Skill skill);
 
         Task<Skill> CreateAsync(CreateSkillDto createSkillDto);
 

@@ -29,7 +29,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.FetchOneCompanyRequest)]
         public async Task<ActionResult<ApiDataResponse<CompanyRequestDto>>> GetById([FromRoute] int id)
         {
-            var result = await _companyRequestService.GetByIdAsync(id);
+            var result = await _companyRequestService.GetById(id);
 
             if (!result.IsSuccess)
             {
@@ -56,7 +56,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.FetchListCompanyRequest)]
         public async Task<ActionResult<ApiDataResponse<QueryResponse<CompanyRequestDto>>>> GetList([FromQuery] CompanyRequestQueryDto companyRequestQueryDto)
         {
-            var result = await _companyRequestService.GetAllAsync(companyRequestQueryDto, User);
+            var result = await _companyRequestService.GetAll(companyRequestQueryDto, User);
 
             return Ok(result.Value);
         }
@@ -69,7 +69,7 @@ namespace JobNexus.Controllers
         {
             var userId = User.GetUserId();
 
-            var result = await _companyRequestService.CreateRequestAsync(userId!, createCompanyRequestDto);
+            var result = await _companyRequestService.Create(userId!, createCompanyRequestDto);
 
             if(!result.IsSuccess)
             {
@@ -90,7 +90,7 @@ namespace JobNexus.Controllers
         [ResponseMessage(message: SuccessMessages.UpdateCompanyRequest)]
         public async Task<ActionResult<ApiDataResponse<CompanyRequestDto>>> UpdateStatus([FromRoute] int id, [FromBody] UpdateCompanyRequestDto updateCompanyRequestDto)
         {
-            var result = await _companyRequestService.UpdateStatusAsync(id, updateCompanyRequestDto);
+            var result = await _companyRequestService.UpdateStatus(id, updateCompanyRequestDto);
 
             if(!result.IsSuccess)
             {

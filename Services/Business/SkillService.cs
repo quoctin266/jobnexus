@@ -1,13 +1,11 @@
 ﻿using JobNexus.Common.Constant;
 using JobNexus.Common.Constant.Messages;
-using JobNexus.Dtos.CompanyRequest;
 using JobNexus.Dtos.Skill;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces.BusinessService;
 using JobNexus.Interfaces.Repository;
 using JobNexus.Mappers;
 using JobNexus.Models;
-using JobNexus.Repository;
 
 namespace JobNexus.Services.Business
 {
@@ -20,7 +18,7 @@ namespace JobNexus.Services.Business
             _skillRepository = skillRepository;
         }
 
-        public async Task<ServiceResult<QueryResponse<SkillDto>>> GetAllAsync(SkillQueryDto skillQueryDto)
+        public async Task<ServiceResult<QueryResponse<SkillDto>>> GetAll(SkillQueryDto skillQueryDto)
         {
             var data = await _skillRepository.GetAllAsync(skillQueryDto);
 
@@ -34,14 +32,14 @@ namespace JobNexus.Services.Business
             });
         }
 
-        public async Task<ServiceResult<Skill>> CreateAsync(CreateSkillDto createSkillDto)
+        public async Task<ServiceResult<Skill>> Create(CreateSkillDto createSkillDto)
         {
             var skill = await _skillRepository.CreateAsync(createSkillDto);
 
             return ServiceResult<Skill>.Success(skill);
         }
 
-        public async Task<ServiceResult<Skill>> UpdateAsync(int id, UpdateSkillDto updateSkillDto)
+        public async Task<ServiceResult<Skill>> Update(int id, UpdateSkillDto updateSkillDto)
         {
             var skill = await _skillRepository.GetByIdAsync(id);
 
@@ -54,7 +52,7 @@ namespace JobNexus.Services.Business
             return ServiceResult<Skill>.Success(skill);
         }
 
-        public async Task<ServiceResult<VoidType>> DeleteAsync(int id)
+        public async Task<ServiceResult<VoidType>> Delete(int id)
         {
             var skill = await _skillRepository.GetByIdAsync(id);
 
@@ -62,7 +60,7 @@ namespace JobNexus.Services.Business
                 return ServiceResult<VoidType>.Failure(StatusCodes.Status404NotFound, 
                                                     Error.NotFound, [ErrorMessages.SkillNotFound]);
 
-            var isInUse = await _skillRepository.IsInUse(skill);
+            var isInUse = await _skillRepository.CheckUsageAsync(skill);
 
             if(isInUse)
                 return ServiceResult<VoidType>.Failure(StatusCodes.Status409Conflict, 

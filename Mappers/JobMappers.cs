@@ -1,5 +1,4 @@
 ﻿using JobNexus.Dtos.Job;
-using JobNexus.Dtos.Skill;
 using JobNexus.Models;
 
 namespace JobNexus.Mappers
@@ -21,9 +20,9 @@ namespace JobNexus.Mappers
                 StartDate = job.StartDate,
                 EndDate = job.EndDate,
                 IsActive = job.IsActive,
-                Company = job.Company?.ToCompanyDto(),
-                CreatedBy = job.CompanyEmployee?.ToCompanyEmployeeDto(),
-                Skills = job.Skills.Select(s => s.ToSkillDto()).ToList(),
+                Company = job.Company?.ToCompanySummaryDto(),
+                CreatedBy = job.CompanyEmployee?.ToCompanyEmployeeSummaryDto(),
+                Skills = job.Skills.Select(s => s.ToSkillSummaryDto()).ToList(),
                 CreatedAt = job.CreatedAt,
                 UpdatedAt = job.UpdatedAt
             };

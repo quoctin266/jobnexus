@@ -6,12 +6,12 @@ namespace JobNexus.Interfaces.BusinessService
 {
     public interface ISkillService
     {
-        Task<ServiceResult<QueryResponse<SkillDto>>> GetAllAsync(SkillQueryDto skillQueryDto);
+        Task<ServiceResult<QueryResponse<SkillDto>>> GetAll(SkillQueryDto skillQueryDto);
 
-        Task<ServiceResult<Skill>> CreateAsync(CreateSkillDto createSkillDto);
+        Task<ServiceResult<Skill>> Create(CreateSkillDto createSkillDto);
 
-        Task<ServiceResult<Skill>> UpdateAsync(int id, UpdateSkillDto updateSkillDto);
+        Task<ServiceResult<Skill>> Update(int id, UpdateSkillDto updateSkillDto);
 
-        Task<ServiceResult<VoidType>> DeleteAsync(int id);
+        Task<ServiceResult<VoidType>> Delete(int id);
     }
 }

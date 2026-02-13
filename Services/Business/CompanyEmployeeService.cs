@@ -37,7 +37,7 @@ namespace JobNexus.Services.Business
             _companyRequestRepository = companyRequestRepository;
         }
 
-        public async Task<ServiceResult<CompanyEmployee>> GetByIdAsync(int CompanyEmployeeId)
+        public async Task<ServiceResult<CompanyEmployee>> GetById(int CompanyEmployeeId)
         {
             var companyEmployee = await _companyEmployeeRepository.GetByIdAsync(CompanyEmployeeId);
 
@@ -51,7 +51,7 @@ namespace JobNexus.Services.Business
             return ServiceResult<CompanyEmployee>.Success(companyEmployee);
         }
 
-        public async Task<ServiceResult<CompanyEmployee>> CreateAsync(CreateFormDto createFormDto, string userId)
+        public async Task<ServiceResult<CompanyEmployee>> Create(CreateFormDto createFormDto, string userId)
         {
             // Can only create new employees with non-owner roles
             if (createFormDto.CompanyRole == CompanyRole.Owner)

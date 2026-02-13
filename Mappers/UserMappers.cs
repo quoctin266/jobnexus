@@ -19,5 +19,14 @@ namespace JobNexus.Mappers
             };
         }
 
+        public static UserSummaryDto ToUserSummaryDto(this AppUser appUser)
+        {
+            return new UserSummaryDto
+            {
+                Id = appUser.Id,
+                Email = appUser.Email ?? "",
+                Username = appUser.UserName ?? "",
+            };
+        }
     }
 }
