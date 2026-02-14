@@ -13,6 +13,8 @@ namespace JobNexus.Extensions
             services.AddScoped<ICompanyEmployeeRepository, CompanyEmployeeRepository>();
             services.AddScoped<ISkillRepository, SkillRepository>();
             services.AddScoped<IJobRepository, JobRepository>();
+            services.AddScoped<IResumeRepository, ResumeRepository>();
+            services.AddScoped<IResumeVersionRepository, ResumeVersionRepository>();
 
             return services;
         }

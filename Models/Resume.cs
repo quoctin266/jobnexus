@@ -16,6 +16,8 @@ namespace JobNexus.Models
 
         public AppUser? AppUser { get; set; }
 
+        public List<ResumeVersion> ResumeVersions { get; set; } = [];
+
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset UpdatedAt { get; set; }

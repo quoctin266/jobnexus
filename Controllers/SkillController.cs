@@ -32,7 +32,7 @@ namespace JobNexus.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost]
         [ResponseMessage(message: SuccessMessages.CreateSkill)]
-        public async Task<ActionResult<ApiDataResponse<SkillDto>>> Create([FromForm] CreateSkillDto createSkillDto)
+        public async Task<ActionResult<ApiDataResponse<SkillDto>>> Create([FromBody] CreateSkillDto createSkillDto)
         {
             var result = await _skillService.Create(createSkillDto);
 
@@ -52,7 +52,7 @@ namespace JobNexus.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPatch("{id}")]
         [ResponseMessage(message: SuccessMessages.UpdateSkill)]
-        public async Task<ActionResult<ApiDataResponse<SkillDto>>> Update([FromRoute] int id, [FromForm] UpdateSkillDto updateSkillDto)
+        public async Task<ActionResult<ApiDataResponse<SkillDto>>> Update([FromRoute] int id, [FromBody] UpdateSkillDto updateSkillDto)
         {
             var result = await _skillService.Update(id, updateSkillDto);
 

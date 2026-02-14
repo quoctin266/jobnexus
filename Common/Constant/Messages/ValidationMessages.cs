@@ -30,5 +30,8 @@
         public const string JobQuantityRange = "Job quantity must be in range 1 - 50";
         public const string JobSkillRange = "Job skills must be in range 1 - 10";
         public const string JobSalaryRange = "Job salary must be in range 1.000.000 - 100.000.000";
+
+        // Resume Validation Messages
+        public const string ResumeTitleMaxLength = "Resume title can not exceed 50 characters";
     }
 }

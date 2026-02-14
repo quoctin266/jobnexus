@@ -34,6 +34,7 @@ namespace JobNexus.Data
         public DbSet<Skill> Skills { get; set; }
         public DbSet<Job> Jobs { get; set; }
         public DbSet<Resume> Resumes { get; set; }
+        public DbSet<ResumeVersion> ResumeVersions { get; set; }
     }
 
 }
