@@ -11,6 +11,8 @@ namespace JobNexus.Interfaces.BusinessService
 
         Task<ServiceResult<Job>> UpdateStatus(int id, UpdateJobStatusDto updateJobStatusDto, ClaimsPrincipal user);
 
+        Task<ServiceResult<Job>> Update(int id, UpdateJobDto updateJobDto, ClaimsPrincipal user);
+
         Task<ServiceResult<Job>> Create(CreateJobDto createJobDto, ClaimsPrincipal user);
 
         Task<ServiceResult<Job>> FindById(int id);

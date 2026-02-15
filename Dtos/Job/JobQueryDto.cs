@@ -1,4 +1,5 @@
 ﻿using JobNexus.Common.Constant.Messages;
+using JobNexus.Common.Enum;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
 using System.ComponentModel.DataAnnotations;
@@ -38,6 +39,7 @@ namespace JobNexus.Dtos.Job
 
         public int? CompanyEmployeeId { get; init; }
 
-        public bool? IsActive { get; init; }
+        [ValidEnum(typeof(JobStatus), ErrorMessage = ValidationMessages.JobStatus)]
+        public JobStatus? Status { get; init; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using JobNexus.Dtos.Company;
+﻿using JobNexus.Common.Enum;
+using JobNexus.Dtos.Company;
 using JobNexus.Dtos.CompanyEmployee;
 using JobNexus.Dtos.Skill;
 
@@ -26,7 +27,7 @@ namespace JobNexus.Dtos.Job
 
         public DateTimeOffset EndDate { get; set; }
 
-        public bool IsActive { get; set; }
+        public JobStatus Status { get; set; }
 
         public CompanySummaryDto? Company { get; set; }
 

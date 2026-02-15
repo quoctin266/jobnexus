@@ -32,6 +32,7 @@
         public const string FetchOneJob = "Fetch job info successfully";
         public const string FetchListJob = "Fetch job list successfully";
         public const string UpdateJobStatus = "Update job status successfully";
+        public const string UpdateJob = "Update job successfully";
 
         // Resume Messages
         public const string CreateResume = "Create resume successfully";

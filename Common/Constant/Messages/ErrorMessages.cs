@@ -38,6 +38,9 @@
         public const string InvalidDateRange = "End date can not be before start date";
         public const string InvalidDateValue = "End date and start date can not be in the past";
         public const string InvalidJobDuration = "Job duration must be at least 7 days";
+        public const string InvalidJobStatus = "Can not update job status to pending";
+        public const string JobClosed = "Job has already been closed";
+        public const string JobUpdateNotAllowed = "Can not update approved or closed job";
 
         // Resume Messages
         public const string ResumeNotFound = "Resume not found with provided id";

@@ -1,4 +1,5 @@
-﻿using JobNexus.Interfaces;
+﻿using JobNexus.Common.Enum;
+using JobNexus.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace JobNexus.Models
@@ -28,7 +29,7 @@ namespace JobNexus.Models
 
         public DateTimeOffset EndDate { get; set; }
 
-        public bool IsActive { get; set; } = false;
+        public JobStatus Status { get; set; }
 
         public int CompanyId { get; set; }
 

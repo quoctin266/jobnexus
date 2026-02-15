@@ -86,8 +86,33 @@ namespace JobNexus.Controllers
 
                 return result.StatusCode switch
                 {
+                    StatusCodes.Status400BadRequest => BadRequest(response),
                     StatusCodes.Status403Forbidden => Forbid(),
                     StatusCodes.Status404NotFound => NotFound(response),
+                    StatusCodes.Status409Conflict => Conflict(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+                };
+            }
+
+            return Ok(result.Value?.ToJobDto());
+        }
+
+        [Authorize(Roles = "Employer")]
+        [HttpPut("{id}")]
+        [ResponseMessage(message: SuccessMessages.UpdateJob)]
+        public async Task<ActionResult<ApiDataResponse<JobDto>>> Update([FromRoute] int id, [FromBody] UpdateJobDto updateJobDto)
+        {
+            var result = await _jobService.Update(id, updateJobDto, User);
+
+            if (!result.IsSuccess)
+            {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status403Forbidden => Forbid(),
+                    StatusCodes.Status404NotFound => NotFound(response),
+                    StatusCodes.Status409Conflict => Conflict(response),
                     _ => StatusCode(StatusCodes.Status500InternalServerError, response)
                 };
             }

@@ -8,7 +8,9 @@ namespace JobNexus.Interfaces.Repository
     {
         Task<Job> CreateAsync(Job job);
 
-        Task<Job> UpdateStatus(Job job, UpdateJobStatusDto updateJobStatusDto);
+        Task<Job> UpdateStatusAsync(Job job, UpdateJobStatusDto updateJobStatusDto);
+
+        Task<Job> UpdateAsync(Job job, UpdateJobDto updateJobDto, IEnumerable<Skill> skills);
 
         Task<Job?> GetByIdAsync(int id);
 

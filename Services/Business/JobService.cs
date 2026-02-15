@@ -108,6 +108,7 @@ namespace JobNexus.Services.Business
                 SalaryMax = createJobDto.SalaryMax,
                 StartDate = createJobDto.StartDate,
                 EndDate = createJobDto.EndDate,
+                Status = JobStatus.Pending,
                 CompanyEmployeeId = userEmployment.Id,
                 CompanyId = userEmployment.CompanyId,
                 Skills = [.. skills]
@@ -122,6 +123,11 @@ namespace JobNexus.Services.Business
         {
             var userId = user.GetUserId()!;
             var userEmployment = await _companyEmployeeRepository.GetActiveEmploymentAsync(userId);
+
+            if(updateJobStatusDto.Status == JobStatus.Pending)
+                return ServiceResult<Job>.Failure(StatusCodes.Status400BadRequest,
+                                                                  Error.ViolatedRule,
+                                                                  [ErrorMessages.InvalidJobStatus]);
 
             // User must be in a company to update job status
             if (userEmployment is null)
@@ -141,7 +147,55 @@ namespace JobNexus.Services.Business
                                                                   Error.NotFound,
                                                                   [ErrorMessages.JobNotFound]);
 
-            await _jobRepository.UpdateStatus(job, updateJobStatusDto);
+            // Can only update job status of jobs from their own company
+            if (job.CompanyId != userEmployment.CompanyId)
+                return ServiceResult<Job>.Failure(StatusCodes.Status403Forbidden,
+                                                                  Error.Forbidden,
+                                                                  [ErrorMessages.NoPermission]);
+
+            // Cannot update status if the job is already closed
+            if (job.Status == JobStatus.Closed)
+                return ServiceResult<Job>.Failure(StatusCodes.Status409Conflict,
+                                                                  Error.ResourceConflict,
+                                                                  [ErrorMessages.JobClosed]);
+
+            await _jobRepository.UpdateStatusAsync(job, updateJobStatusDto);
+
+            return ServiceResult<Job>.Success(job);
+        }
+
+        public async Task<ServiceResult<Job>> Update(int id, UpdateJobDto updateJobDto, ClaimsPrincipal user)
+        {
+            var userId = user.GetUserId()!;
+            var userEmployment = await _companyEmployeeRepository.GetActiveEmploymentAsync(userId);
+
+            // User must be in a company to update job status
+            if (userEmployment is null)
+                return ServiceResult<Job>.Failure(StatusCodes.Status404NotFound,
+                                                                  Error.NotFound,
+                                                                  [ErrorMessages.ActiveEmploymentNotFound]);
+
+            var job = await _jobRepository.GetByIdAsync(id);
+            if (job is null)
+                return ServiceResult<Job>.Failure(StatusCodes.Status404NotFound,
+                                                                  Error.NotFound,
+                                                                  [ErrorMessages.JobNotFound]);
+
+            // Can only update job created by themselves
+            if (job.CompanyEmployeeId != userEmployment.Id)
+                return ServiceResult<Job>.Failure(StatusCodes.Status403Forbidden,
+                                                                  Error.Forbidden,
+                                                                  [ErrorMessages.NoPermission]);
+
+            // Cannot update job if it's already closed or approved
+            if (job.Status != JobStatus.Pending)
+                return ServiceResult<Job>.Failure(StatusCodes.Status409Conflict,
+                                                                  Error.ResourceConflict,
+                                                                  [ErrorMessages.JobUpdateNotAllowed]);
+
+            var skills = await _skillRepository.FindAsync(updateJobDto.SkillIds);
+
+            await _jobRepository.UpdateAsync(job, updateJobDto, skills);
 
             return ServiceResult<Job>.Success(job);
         }

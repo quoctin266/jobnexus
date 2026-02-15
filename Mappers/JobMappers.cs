@@ -19,7 +19,7 @@ namespace JobNexus.Mappers
                 Description = job.Description,
                 StartDate = job.StartDate,
                 EndDate = job.EndDate,
-                IsActive = job.IsActive,
+                Status = job.Status,
                 Company = job.Company?.ToCompanySummaryDto(),
                 CreatedBy = job.CompanyEmployee?.ToCompanyEmployeeSummaryDto(),
                 Skills = job.Skills.Select(s => s.ToSkillSummaryDto()).ToList(),

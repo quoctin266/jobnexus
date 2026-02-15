@@ -93,9 +93,9 @@ namespace JobNexus.Repository
                 query = query.Where(j => j.CompanyEmployeeId == jobQueryDto.CompanyEmployeeId);
             }
 
-            if (jobQueryDto.IsActive.HasValue)
+            if (jobQueryDto.Status.HasValue)
             {
-                query = query.Where(j => j.IsActive == jobQueryDto.IsActive);
+                query = query.Where(j => j.Status == jobQueryDto.Status);
             }
 
             if (!string.IsNullOrWhiteSpace(jobQueryDto.SortBy))
@@ -135,9 +135,27 @@ namespace JobNexus.Repository
             return job;
         }
 
-        public async Task<Job> UpdateStatus(Job job, UpdateJobStatusDto updateJobStatusDto)
+        public async Task<Job> UpdateStatusAsync(Job job, UpdateJobStatusDto updateJobStatusDto)
         {
-            job.IsActive = updateJobStatusDto.IsActive;
+            job.Status = updateJobStatusDto.Status;
+
+            await _context.SaveChangesAsync();
+
+            return job;
+        }
+
+        public async Task<Job> UpdateAsync(Job job, UpdateJobDto updateJobDto, IEnumerable<Skill> skills)
+        {
+            job.Name = updateJobDto.Name;
+            job.Location = updateJobDto.Location;
+            job.Level = updateJobDto.Level;
+            job.SalaryMin = updateJobDto.SalaryMin;
+            job.SalaryMax = updateJobDto.SalaryMax;
+            job.Quantity = updateJobDto.Quantity;
+            job.StartDate = updateJobDto.StartDate;
+            job.EndDate = updateJobDto.EndDate;
+            job.Description = updateJobDto.Description;
+            job.Skills = [.. skills];
 
             await _context.SaveChangesAsync();
 
