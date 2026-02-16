@@ -34,6 +34,12 @@
         public const string UpdateJobStatus = "Update job status successfully";
         public const string UpdateJob = "Update job successfully";
 
+        // Company Messages
+        public const string FetchOneCompany = "Fetch company info successfully";
+        public const string FetchListCompany = "Fetch company list successfully";
+        public const string UpdateCompany = "Update company successfully";
+        public const string CloseCompany = "Company has been closed successfully";
+
         // Resume Messages
         public const string CreateResume = "Create resume successfully";
         public const string FetchOneResume = "Fetch resume info successfully";

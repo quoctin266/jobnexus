@@ -9,5 +9,7 @@ namespace JobNexus.Interfaces.Repository
         Task<CompanyEmployee?> GetActiveEmploymentAsync(string userId);
 
         Task<CompanyEmployee?> GetByIdAsync(int CompanyEmployeeId);
+
+        Task UpdateToInactiveAsync(int companyId);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using JobNexus.Data;
-using JobNexus.Dtos.CompanyEmployee;
 using JobNexus.Interfaces.Repository;
 using JobNexus.Models;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +34,14 @@ namespace JobNexus.Repository
             await _context.SaveChangesAsync();
 
             return companyEmployee;
+        }
+
+        public async Task UpdateToInactiveAsync(int companyId)
+        {
+            await _context.CompanyEmployees.Where(ce => ce.CompanyId == companyId && ce.IsActive == true)
+                                        .ForEachAsync(ce => ce.IsActive = false);
+
+            await _context.SaveChangesAsync();
         }
     }
 }

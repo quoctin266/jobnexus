@@ -1,4 +1,5 @@
-﻿using JobNexus.Data;
+﻿using JobNexus.Common.Enum;
+using JobNexus.Data;
 using JobNexus.Dtos.Job;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Utils;
@@ -160,6 +161,14 @@ namespace JobNexus.Repository
             await _context.SaveChangesAsync();
 
             return job;
+        }
+
+        public async Task UpdateToClosedAsync(int companyId)
+        {
+            await _context.Jobs.Where(j => j.CompanyId == companyId)
+                               .ForEachAsync(j => j.Status = JobStatus.Closed);
+
+            await _context.SaveChangesAsync();
         }
     }
 }

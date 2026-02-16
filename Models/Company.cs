@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace JobNexus.Models
 {
-    public class Company : IEntityTimestamps, ISoftDelete
+    public class Company : IEntityTimestamps
     {
         public int Id { get; set; }
 
@@ -19,6 +19,8 @@ namespace JobNexus.Models
 
         public string BusinessLicenseUrl { get; set; } = "";
 
+        public bool IsActive { get; set; } = true;
+
         public List<CompanyEmployee> CompanyEmployees { get; set; } = [];
 
         public List<Job> Jobs { get; set; } = [];
@@ -26,9 +28,5 @@ namespace JobNexus.Models
         public DateTimeOffset CreatedAt { get; set; }
 
         public DateTimeOffset UpdatedAt { get; set; }
-
-        public bool IsDeleted { get; set; }
-
-        public DateTimeOffset? DeletedAt { get; set; }
     }
 }

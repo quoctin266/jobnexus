@@ -20,11 +20,10 @@ namespace JobNexus.Data
             base.OnModelCreating(builder);
 
             builder.Entity<AppUser>().HasQueryFilter(x => x.IsDeleted == false);
-            builder.Entity<Company>().HasQueryFilter(x => x.IsDeleted == false);
             builder.Entity<CompanyEmployee>().HasQueryFilter(x => x.AppUser != null && x.AppUser.IsDeleted == false);
             builder.Entity<CompanyRequest>().HasQueryFilter(x => x.AppUser != null && x.AppUser.IsDeleted == false);
             builder.Entity<Skill>().HasQueryFilter(x => x.IsDeleted == false);
-            builder.Entity<Job>().HasQueryFilter(x => x.IsDeleted == false && x.Company != null && x.Company.IsDeleted == false);
+            builder.Entity<Job>().HasQueryFilter(x => x.IsDeleted == false);
             builder.Entity<Resume>().HasQueryFilter(x => x.IsDeleted == false && x.AppUser != null && x.AppUser.IsDeleted == false);
         }
 

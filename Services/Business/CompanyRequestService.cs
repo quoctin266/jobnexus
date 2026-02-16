@@ -9,7 +9,6 @@ using JobNexus.Interfaces.BusinessService;
 using JobNexus.Interfaces.Repository;
 using JobNexus.Mappers;
 using JobNexus.Models;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace JobNexus.Services.Business

@@ -15,5 +15,7 @@ namespace JobNexus.Interfaces.Repository
         Task<Job?> GetByIdAsync(int id);
 
         Task<QueryResponse<Job>> GetAllAsync(JobQueryDto jobQueryDto);
+
+        Task UpdateToClosedAsync(int companyId);
     }
 }
