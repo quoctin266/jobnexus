@@ -1,5 +1,4 @@
-﻿using JobNexus.Common.Enum;
-using JobNexus.Dtos.CompanyRequest;
+﻿using JobNexus.Dtos.CompanyRequest;
 using JobNexus.Helpers.Utils;
 using JobNexus.Models;
 using System.Security.Claims;
@@ -8,7 +7,7 @@ namespace JobNexus.Interfaces.Repository
 {
     public interface ICompanyRequestRepository
     {
-        Task<CompanyRequest?> CheckPendingOrApprovedAsync(string userId);
+        Task<CompanyRequest?> CheckPendingAsync(string userId);
 
         Task<CompanyRequest?> GetByIdAsync(int requestId);
 

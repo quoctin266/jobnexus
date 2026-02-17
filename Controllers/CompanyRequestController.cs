@@ -61,7 +61,7 @@ namespace JobNexus.Controllers
             return Ok(result.Value);
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "User, Employer")]
         [HttpPost]
         [Consumes("multipart/form-data")]
         [ResponseMessage(message: SuccessMessages.CreateCompanyRequest)]

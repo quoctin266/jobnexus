@@ -3,11 +3,14 @@ using JobNexus.Common.Constant.Messages;
 using JobNexus.Common.Enum;
 using JobNexus.Data;
 using JobNexus.Dtos.CompanyEmployee;
+using JobNexus.Extensions;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces;
 using JobNexus.Interfaces.BusinessService;
 using JobNexus.Interfaces.Repository;
+using JobNexus.Mappers;
 using JobNexus.Models;
+using System.Security.Claims;
 
 namespace JobNexus.Services.Business
 {
@@ -35,6 +38,20 @@ namespace JobNexus.Services.Business
             _companyRepository = companyRepository;
             _accountRepository = accountRepository;
             _companyRequestRepository = companyRequestRepository;
+        }
+
+        public async Task<ServiceResult<QueryResponse<CompanyEmployeeDto>>> GetAll(CompanyEmployeeQueryDto companyEmployeeQueryDto, ClaimsPrincipal user)
+        {
+            var data = await _companyEmployeeRepository.GetAllAsync(companyEmployeeQueryDto, user);
+
+            return ServiceResult<QueryResponse<CompanyEmployeeDto>>.Success(new QueryResponse<CompanyEmployeeDto>
+            {
+                TotalPages = data.TotalPages,
+                PageNumber = data.PageNumber,
+                PageSize = data.PageSize,
+                TotalItems = data.TotalItems,
+                Items = data.Items.Select(cr => cr.ToCompanyEmployeeDto())
+            });
         }
 
         public async Task<ServiceResult<CompanyEmployee>> GetById(int CompanyEmployeeId)
@@ -87,8 +104,12 @@ namespace JobNexus.Services.Business
                                                               Error.ViolatedRule,
                                                               [ErrorMessages.DifferentCompany]);
 
-            // Ensure the user being added does not belong to another company or has a pending company request
-            if (await _companyRequestRepository.CheckPendingOrApprovedAsync(createFormDto.AppUserId) is not null)
+            
+            var userEmployment = await _companyEmployeeRepository.GetActiveEmploymentAsync(createFormDto.AppUserId);
+            var userCompanyRequest = await _companyRequestRepository.CheckPendingAsync(createFormDto.AppUserId);
+
+            // Ensure the user being added is not currently in another company or has a pending company request
+            if (userEmployment != null || userCompanyRequest != null)
                 return ServiceResult<CompanyEmployee>.Failure(StatusCodes.Status400BadRequest,
                                                               Error.ViolatedRule,
                                                               [ErrorMessages.UserAlreadyEmployed]);
@@ -109,7 +130,16 @@ namespace JobNexus.Services.Business
 
                 await _companyEmployeeRepository.CreateAsync(companyEmployee);
 
-                await _accountRepository.UpdateUserRoleAsync(user, Role.Employer);
+                var userRole = await _accountRepository.GetUserRoleAsync(user);
+                if (userRole != Role.Employer.ToString())
+                {
+                    var updateRoleResult = await _accountRepository.UpdateUserRoleAsync(user, Role.Employer);
+
+                    if (!updateRoleResult.Succeeded)
+                    {
+                        throw new Exception("Failed to update user role.");
+                    }
+                }
 
                 await transaction.CommitAsync();
 
@@ -125,6 +155,46 @@ namespace JobNexus.Services.Business
             return ServiceResult<CompanyEmployee>.Failure(StatusCodes.Status500InternalServerError,
                                                               Error.ServerFailure,
                                                               [ErrorMessages.ServerError]);
+        }
+
+        public async Task<ServiceResult<CompanyEmployee>> UpdateToInactive(int id, ClaimsPrincipal user)
+        {
+            var userId = user.GetUserId();
+            var userEmployment = await _companyEmployeeRepository.GetActiveEmploymentAsync(userId!);
+
+            // User must belong to a company
+            if (userEmployment is null)
+                return ServiceResult<CompanyEmployee>.Failure(StatusCodes.Status404NotFound,
+                                                              Error.NotFound,
+                                                              [ErrorMessages.ActiveEmploymentNotFound]);
+
+            // Only company owners can update employee status
+            if (userEmployment.CompanyRole != CompanyRole.Owner)
+                return ServiceResult<CompanyEmployee>.Failure(StatusCodes.Status403Forbidden,
+                                                      Error.Forbidden,
+                                                      [ErrorMessages.NoPermission]);
+
+            var companyEmployee = await _companyEmployeeRepository.GetByIdAsync(id);
+            if(companyEmployee is null)
+                return ServiceResult<CompanyEmployee>.Failure(StatusCodes.Status404NotFound,
+                                                              Error.NotFound,
+                                                              [ErrorMessages.EmployeeNotFound]);
+
+            // Owners can only update employees within their own company
+            if (userEmployment.CompanyId != companyEmployee.CompanyId)
+                return ServiceResult<CompanyEmployee>.Failure(StatusCodes.Status400BadRequest,
+                                                              Error.ViolatedRule,
+                                                              [ErrorMessages.EmployeeNotInCompany]);
+
+            // Owners cannot update their own employment status
+            if (userEmployment.Id == id)
+                return ServiceResult<CompanyEmployee>.Failure(StatusCodes.Status400BadRequest,
+                                                              Error.ViolatedRule,
+                                                              [ErrorMessages.SelfUpdateNotAllowed]);
+
+            await _companyEmployeeRepository.UpdateStatusAsync(companyEmployee, false);
+
+            return ServiceResult<CompanyEmployee>.Success(companyEmployee);
         }
     }
 }

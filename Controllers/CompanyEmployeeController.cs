@@ -22,6 +22,16 @@ namespace JobNexus.Controllers
         }
 
         [Authorize(Roles = "Admin, Employer")]
+        [HttpGet]
+        [ResponseMessage(message: SuccessMessages.FetchListEmployee)]
+        public async Task<ActionResult<ApiDataResponse<QueryResponse<CompanyEmployeeDto>>>> GetList([FromQuery] CompanyEmployeeQueryDto companyEmployeeQueryDto)
+        {
+            var result = await _companyEmployeeService.GetAll(companyEmployeeQueryDto, User);
+
+            return Ok(result.Value);
+        }
+
+        [Authorize(Roles = "Admin, Employer")]
         [HttpGet("{id}")]
         [ResponseMessage(message: SuccessMessages.FetchOneEmployee)]
         public async Task<ActionResult<ApiDataResponse<CompanyEmployeeDto>>> GetById([FromRoute] int id)
@@ -65,6 +75,29 @@ namespace JobNexus.Controllers
             }
 
             return StatusCode(StatusCodes.Status201Created, result.Value?.ToCompanyEmployeeDto());
+        }
+
+        [Authorize(Roles = "Employer")]
+        [HttpPatch("deactive/{id}")]
+        [ResponseMessage(message: SuccessMessages.DeactivateEmployee)]
+        public async Task<ActionResult<ApiDataResponse<CompanyEmployeeDto>>> UpdateToInactive([FromRoute] int id)
+        {
+            var result = await _companyEmployeeService.UpdateToInactive(id, User);
+
+            if (!result.IsSuccess)
+            {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status400BadRequest => BadRequest(response),
+                    StatusCodes.Status403Forbidden => Forbid(),
+                    StatusCodes.Status404NotFound => NotFound(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+                };
+            }
+
+            return Ok(result.Value?.ToCompanyEmployeeDto());
         }
     }
 }

@@ -28,11 +28,11 @@ namespace JobNexus.Repository
             _context = context;
         }
 
-        public async Task<CompanyRequest?> CheckPendingOrApprovedAsync(string userId)
+        public async Task<CompanyRequest?> CheckPendingAsync(string userId)
         {
             return await _context.CompanyRequests
                .FirstOrDefaultAsync(cr => cr.AppUserId == userId &&
-                   (cr.Status == CompanyRequestStatus.Pending || cr.Status == CompanyRequestStatus.Approved));
+                   (cr.Status == CompanyRequestStatus.Pending));
         }
 
         public async Task<QueryResponse<CompanyRequest>> GetAllAsync(CompanyRequestQueryDto companyRequestQueryDto, 

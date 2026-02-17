@@ -36,6 +36,13 @@ namespace JobNexus.Repository
             return await _userManager.RemoveFromRolesAsync(user, roles);
         }
 
+        public async Task<string> GetUserRoleAsync(AppUser user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return roles[0];
+        }
+
         public async Task<IdentityResult> CreateUserAsync(AppUser user, string password)
         {
             return await _userManager.CreateAsync(user, password);

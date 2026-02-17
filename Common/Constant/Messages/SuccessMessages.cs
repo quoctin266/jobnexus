@@ -9,6 +9,8 @@
         // Company Employee Messages
         public const string CreateEmployee = "Create company employee successfully";
         public const string FetchOneEmployee = "Fetch employee info successfully";
+        public const string FetchListEmployee = "Fetch employee list successfully";
+        public const string DeactivateEmployee = "Deativate employee successfully";
 
         // Company Request Messages
         public const string CreateCompanyRequest = "Create request successfully";

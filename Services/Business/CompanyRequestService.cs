@@ -69,8 +69,11 @@ namespace JobNexus.Services.Business
 
         public async Task<ServiceResult<CompanyRequest>> Create(string userId, CreateCompanyRequestDto createCompanyRequestDto)
         {
-            // Check if a pending or approved request already exists for the user
-            if (await _companyRequestRepository.CheckPendingOrApprovedAsync(userId) is not null)
+            var userEmployment = await _companyEmployeeRepository.GetActiveEmploymentAsync(userId);
+            var userRequest = await _companyRequestRepository.CheckPendingAsync(userId);
+
+            // Can only create company request when user isn't currently in a company or have pending request
+            if (userEmployment is not null || userRequest is not null)
             {
                 return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status409Conflict,
                                                              Error.ResourceConflict,
@@ -131,13 +134,17 @@ namespace JobNexus.Services.Business
 
                     await _companyEmployeeRepository.CreateAsync(companyEmployee);
                        
-                    var user = await _accountRepository.GetByIdAsync(companyRequest.AppUserId);
+                    var user = await _accountRepository.GetByIdAsync(companyRequest.AppUserId) ?? throw new Exception("Not found user with providid id.");
+                    var userRole = await _accountRepository.GetUserRoleAsync(user);
 
-                    var updateRoleResult = await _accountRepository.UpdateUserRoleAsync(user!, Role.Employer);
-
-                    if (!updateRoleResult.Succeeded)
+                    if(userRole != Role.Employer.ToString())
                     {
-                        throw new Exception("Failed to update user role.");
+                        var updateRoleResult = await _accountRepository.UpdateUserRoleAsync(user, Role.Employer);
+
+                        if (!updateRoleResult.Succeeded)
+                        {
+                            throw new Exception("Failed to update user role.");
+                        }
                     }
                     
                     await transaction.CommitAsync();

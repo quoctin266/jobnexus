@@ -169,7 +169,7 @@ namespace JobNexus.Services.Business
             var userId = user.GetUserId()!;
             var userEmployment = await _companyEmployeeRepository.GetActiveEmploymentAsync(userId);
 
-            // User must be in a company to update job status
+            // User must be in a company to update job info
             if (userEmployment is null)
                 return ServiceResult<Job>.Failure(StatusCodes.Status404NotFound,
                                                                   Error.NotFound,

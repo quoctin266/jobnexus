@@ -19,6 +19,8 @@
         public const string DifferentCompany = "Cannot add employee to another company";
         public const string UserAlreadyEmployed = "User already belongs to a company or has a pending request";
         public const string ActiveEmploymentNotFound = "User doesn't have any active employment";
+        public const string EmployeeNotInCompany = "Can not update status of an employee from another company";
+        public const string SelfUpdateNotAllowed = "Can not update own status";
 
         // Company Messages
         public const string CompanyNotFound = "Company not found with provided id";
