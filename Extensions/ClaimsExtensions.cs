@@ -9,5 +9,10 @@ namespace JobNexus.Extensions
             return user.FindFirstValue("id");
         }
 
+        public static string? GetTokenIdentity(this ClaimsPrincipal token)
+        {
+            return token.FindFirstValue("tokenIdentity");
+        }
+
     }
 }

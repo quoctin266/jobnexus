@@ -29,8 +29,7 @@ namespace JobNexus.Extensions
                 ValidAudience = configuration["JWT:Audience"],
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(configuration["JWT:SigningKey"]!)
-                )
+                    Encoding.UTF8.GetBytes(configuration["JWT:SigningKey"]!))
             };
 
             options.Events = new JwtBearerEvents
@@ -38,7 +37,7 @@ namespace JobNexus.Extensions
                     OnChallenge = context =>
                     {
                         context.HandleResponse();
-
+                       
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         context.Response.ContentType = "application/json";
 

@@ -1,10 +1,14 @@
-﻿using JobNexus.Common.Enum;
-using JobNexus.Models;
+﻿using JobNexus.Models;
+using System.Security.Claims;
 
 namespace JobNexus.Interfaces
 {
     public interface ITokenService
     {
-        Task<string> CreateToken(AppUser user, TokenType tokenType);
+        Task<string> CreateAccessToken(AppUser user);
+
+        string CreateRefreshToken(Guid tokenIdentity, DateTime expiresAt);
+
+        ClaimsPrincipal? ValidateToken(string token);
     }
 }

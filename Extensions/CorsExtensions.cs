@@ -11,7 +11,8 @@
                     {
                         policy.WithOrigins("https://jobnexus.com.vn")
                               .AllowAnyMethod()
-                              .AllowAnyHeader();
+                              .AllowAnyHeader()
+                              .AllowCredentials();
                     });
             });
 

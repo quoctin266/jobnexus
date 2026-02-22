@@ -1,6 +1,5 @@
 ﻿using JobNexus.Data;
 using JobNexus.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
 namespace JobNexus.Extensions

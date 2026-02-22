@@ -45,9 +45,9 @@ namespace JobNexus.Controllers
         [AllowAnonymous]
         [HttpPost("login")]
         [ResponseMessage(message: SuccessMessages.LoginSuccess)]
-        public async Task<ActionResult<ApiDataResponse<LoginResponseDto>>> Login([FromBody] LoginDto loginDto)
+        public async Task<ActionResult<ApiDataResponse<TokenResponseDto>>> Login([FromBody] LoginDto loginDto)
         {
-            var result = await _authService.Login(loginDto);
+            var result = await _authService.Login(loginDto, Response);
 
             if(!result.IsSuccess)
             {
@@ -61,6 +61,48 @@ namespace JobNexus.Controllers
             }
 
             return StatusCode(StatusCodes.Status201Created, result.Value);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("refresh")]
+        [ResponseMessage(message: SuccessMessages.RefreshSuccess)]
+        public async Task<ActionResult<ApiDataResponse<TokenResponseDto>>> Refresh()
+        {
+            var result = await _authService.Refresh(Request, Response);
+
+            if (!result.IsSuccess)
+            {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status401Unauthorized => Unauthorized(response),
+                    StatusCodes.Status404NotFound => NotFound(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+                };
+            }
+
+            return StatusCode(StatusCodes.Status201Created, result.Value);
+        }
+
+        [HttpPost("logout")]
+        [ResponseMessage(message: SuccessMessages.LogoutSuccess)]
+        public async Task<ActionResult<ApiDataResponse<VoidType>>> Logout()
+        {
+            var result = await _authService.Logout(Request, Response);
+
+            if (!result.IsSuccess)
+            {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status401Unauthorized => Unauthorized(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+                };
+            }
+
+            return Ok(null);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace JobNexus.Extensions
             services.AddScoped<IResumeRepository, ResumeRepository>();
             services.AddScoped<IResumeVersionRepository, ResumeVersionRepository>();
             services.AddScoped<IApplicationRepository, ApplicationRepository>();
+            services.AddScoped<ITokenRepository, TokenRepository>();
 
             return services;
         }

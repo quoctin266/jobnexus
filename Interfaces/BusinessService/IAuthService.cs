@@ -8,6 +8,10 @@ namespace JobNexus.Interfaces.BusinessService
     {
         Task<ServiceResult<AppUser>> Register(RegisterDto registerDto);
 
-        Task<ServiceResult<LoginResponseDto>> Login(LoginDto loginDto);
+        Task<ServiceResult<TokenResponseDto>> Login(LoginDto loginDto, HttpResponse response);
+
+        Task<ServiceResult<TokenResponseDto>> Refresh(HttpRequest request, HttpResponse response);
+
+        Task<ServiceResult<VoidType>> Logout(HttpRequest request, HttpResponse response);
     }
 }

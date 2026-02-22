@@ -28,6 +28,7 @@ namespace JobNexus.Data
                                                          x.AppUser != null && x.AppUser.IsDeleted == false);
             builder.Entity<Application>().HasQueryFilter(x => x.AppUser != null && x.AppUser.IsDeleted == false && 
                                                               x.Job != null && x.Job.IsDeleted ==false);
+            builder.Entity<Token>().HasQueryFilter(x => x.AppUser != null && x.AppUser.IsDeleted == false);
 
             builder.Entity<Application>()
                    .HasIndex(a => new { a.JobId, a.AppUserId })
@@ -42,6 +43,7 @@ namespace JobNexus.Data
         public DbSet<Resume> Resumes { get; set; }
         public DbSet<ResumeVersion> ResumeVersions { get; set; }
         public DbSet<Application> Applications { get; set; }
+        public DbSet<Token> Tokens { get; set; }
     }
 
 }
