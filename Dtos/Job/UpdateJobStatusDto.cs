@@ -8,7 +8,6 @@ namespace JobNexus.Dtos.Job
     public record UpdateJobStatusDto
     {
         [Required]
-        [ValidEnum(typeof(JobStatus), ErrorMessage = ValidationMessages.JobStatus)]
         public JobStatus Status { get; init; }
     }
 }

@@ -34,5 +34,9 @@
 
         // Resume Validation Messages
         public const string ResumeTitleMaxLength = "Resume title can not exceed 50 characters";
+
+        // Application Validation Messages
+        public const string ApplicationFullNameMaxLength = "Full name can not exceed 50 characters";
+        public const string ApplicationStatus = "Invalid application status value";
     }
 }

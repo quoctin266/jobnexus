@@ -16,7 +16,6 @@ namespace JobNexus.Dtos.User
         public string DateOfBirth { get; init; } = "";
 
         [Required]
-        [ValidEnum(typeof(Gender), ErrorMessage = ValidationMessages.GenderValue)]
         public string Gender { get; init; } = "";
 
         [Required]

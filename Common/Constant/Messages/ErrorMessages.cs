@@ -29,6 +29,7 @@
         public const string CompanyRequestNotFound = "Request not found with provided id";
         public const string CompanyRequestConflict = "Requests with status pending or approved already existed";
         public const string InvalidCompanyRequestStatusUpdate = "Can not update to status Pending";
+        public const string CompanyRequestUpdateNotAllowed = "Can only update status of pending request";
 
         // Skill Messages
         public const string SkillNotFound = "Skill not found with provided id";
@@ -46,5 +47,13 @@
 
         // Resume Messages
         public const string ResumeNotFound = "Resume not found with provided id";
+
+        // Application Messages
+        public const string ApplicationNotFound = "Application not found with provided id";
+        public const string ApplicationNotAllowed = "Job currently does not accept application";
+        public const string DuplicatedApplication = "User has already applied to this job";
+        public const string ResumeNotOwned = "Can not use a resume not owned by applicant";
+        public const string InvalidApplicationStatusUpdate = "Can not update to status Pending";
+        public const string ApplicationUpdateNotAllowed = "Can only update status of pending application";
     }
 }

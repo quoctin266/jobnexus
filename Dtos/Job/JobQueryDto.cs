@@ -39,7 +39,6 @@ namespace JobNexus.Dtos.Job
 
         public int? CompanyEmployeeId { get; init; }
 
-        [ValidEnum(typeof(JobStatus), ErrorMessage = ValidationMessages.JobStatus)]
         public JobStatus? Status { get; init; }
     }
 }

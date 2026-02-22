@@ -7,7 +7,7 @@ namespace JobNexus.Interfaces.BusinessService
 {
     public interface ICompanyEmployeeService
     {
-        Task<ServiceResult<QueryResponse<CompanyEmployeeDto>>> GetAll(CompanyEmployeeQueryDto companyEmployeeQueryDto, ClaimsPrincipal User);
+        Task<ServiceResult<QueryResponse<CompanyEmployeeDto>>> GetAll(CompanyEmployeeQueryDto companyEmployeeQueryDto, ClaimsPrincipal user);
 
         Task<ServiceResult<CompanyEmployee>> GetById(int CompanyEmployeeId);
 

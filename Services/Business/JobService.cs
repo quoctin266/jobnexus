@@ -15,8 +15,6 @@ namespace JobNexus.Services.Business
 {
     public class JobService : IJobService
     {
-        private readonly ApplicationDBContext _context;
-
         private readonly IJobRepository _jobRepository;
 
         private readonly ISkillRepository _skillRepository;
@@ -24,12 +22,10 @@ namespace JobNexus.Services.Business
         private readonly ICompanyEmployeeRepository _companyEmployeeRepository;
 
         public JobService(
-            ApplicationDBContext context,
             IJobRepository jobRepository,
             ISkillRepository skillRepository,
             ICompanyEmployeeRepository companyEmployeeRepository)
         {
-            _context = context;
             _jobRepository = jobRepository;
             _skillRepository = skillRepository;
             _companyEmployeeRepository = companyEmployeeRepository;

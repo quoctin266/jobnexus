@@ -91,7 +91,8 @@ namespace JobNexus.Services.Business
 
         public async Task<ServiceResult<CompanyRequest>> UpdateStatus(int requestId, UpdateCompanyRequestDto updateCompanyRequestDto)
         {
-            if(updateCompanyRequestDto.Status == CompanyRequestStatus.Pending)
+            // Can not update status to pending
+            if (updateCompanyRequestDto.Status == CompanyRequestStatus.Pending)
             {
                 return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status400BadRequest,
                                                              Error.ViolatedRule,
@@ -105,6 +106,14 @@ namespace JobNexus.Services.Business
                 return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status404NotFound,
                                                              Error.NotFound,
                                                              [ErrorMessages.CompanyRequestNotFound]);
+            }
+
+            // Can only update status of request with pending status
+            if (companyRequest.Status != CompanyRequestStatus.Pending)
+            {
+                return ServiceResult<CompanyRequest>.Failure(StatusCodes.Status400BadRequest,
+                                                             Error.ViolatedRule,
+                                                             [ErrorMessages.CompanyRequestUpdateNotAllowed]);
             }
 
             if (updateCompanyRequestDto.Status == CompanyRequestStatus.Rejected)

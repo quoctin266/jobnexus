@@ -1,3 +1,4 @@
+//using FluentValidation;
 using JobNexus.Data;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Filters;
@@ -18,6 +19,8 @@ builder.Services.AddControllers(options => options.Filters.Add<ResponseFilter>()
                     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
+
+//builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 // Connect to DB
 builder.Services.AddDbContext<ApplicationDBContext>(options =>

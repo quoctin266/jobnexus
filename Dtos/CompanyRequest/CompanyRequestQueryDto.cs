@@ -14,7 +14,6 @@ namespace JobNexus.Dtos.CompanyRequest
         [MaxLength(50, ErrorMessage = ValidationMessages.TINMaxLength)]
         public string? TIN { get; init; }
 
-        [ValidEnum(typeof(CompanyRequestStatus), ErrorMessage = ValidationMessages.CompanyRequestStatus)]
         public CompanyRequestStatus? Status { get; init; }
 
         public string? UserId { get; init; }

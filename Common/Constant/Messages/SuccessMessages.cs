@@ -48,5 +48,11 @@
         public const string FetchListResume = "Fetch resume list successfully";
         public const string UpdateResume = "Update resume successfully";
         public const string DeleteResume = "Delete resume successfully";
+
+        // Application Messages
+        public const string CreateApplication = "Create application successfully";
+        public const string FetchOneApplication = "Fetch application info successfully";
+        public const string FetchListApplication = "Fetch application list successfully";
+        public const string UpdateApplicationStatus = "Update application status successfully";
     }
 }

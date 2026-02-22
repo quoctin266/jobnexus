@@ -18,7 +18,6 @@ namespace JobNexus.Dtos.CompanyEmployee
         public required string AppUserId { get; init; }
 
         [Required]
-        [ValidEnum(typeof(CompanyRole), ErrorMessage = ValidationMessages.CompanyRoleValue)]
         public CompanyRole CompanyRole { get; init; }
     }
 }

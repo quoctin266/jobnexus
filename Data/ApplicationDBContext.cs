@@ -24,7 +24,14 @@ namespace JobNexus.Data
             builder.Entity<CompanyRequest>().HasQueryFilter(x => x.AppUser != null && x.AppUser.IsDeleted == false);
             builder.Entity<Skill>().HasQueryFilter(x => x.IsDeleted == false);
             builder.Entity<Job>().HasQueryFilter(x => x.IsDeleted == false);
-            builder.Entity<Resume>().HasQueryFilter(x => x.IsDeleted == false && x.AppUser != null && x.AppUser.IsDeleted == false);
+            builder.Entity<Resume>().HasQueryFilter(x => x.IsDeleted == false && 
+                                                         x.AppUser != null && x.AppUser.IsDeleted == false);
+            builder.Entity<Application>().HasQueryFilter(x => x.AppUser != null && x.AppUser.IsDeleted == false && 
+                                                              x.Job != null && x.Job.IsDeleted ==false);
+
+            builder.Entity<Application>()
+                   .HasIndex(a => new { a.JobId, a.AppUserId })
+                   .IsUnique();
         }
 
         public DbSet<Company> Companies { get; set; }
@@ -34,6 +41,7 @@ namespace JobNexus.Data
         public DbSet<Job> Jobs { get; set; }
         public DbSet<Resume> Resumes { get; set; }
         public DbSet<ResumeVersion> ResumeVersions { get; set; }
+        public DbSet<Application> Applications { get; set; }
     }
 
 }
