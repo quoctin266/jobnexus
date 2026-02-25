@@ -44,7 +44,8 @@ namespace JobNexus.Seed
                 var admin = new AppUser
                 {
                     UserName = username,
-                    Email = email
+                    Email = email,
+                    EmailConfirmed = true
                 };
 
                 var result = await userManager.CreateAsync(admin, password);
