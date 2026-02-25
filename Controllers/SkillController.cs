@@ -20,6 +20,7 @@ namespace JobNexus.Controllers
             _skillService = skillService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         [ResponseMessage(message: SuccessMessages.FetchListSkill)]
         public async Task<ActionResult<ApiDataResponse<QueryResponse<SkillDto>>>> GetList([FromQuery] SkillQueryDto skillQueryDto)

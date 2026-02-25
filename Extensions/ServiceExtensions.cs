@@ -11,6 +11,7 @@ namespace JobNexus.Extensions
         {
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<IBlobStorageService, BlobStorageService>();
+            services.AddTransient<IEmailService, EmailService>();
 
             // business services
             services.AddScoped<IAuthService, AuthService>();

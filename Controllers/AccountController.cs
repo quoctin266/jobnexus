@@ -1,8 +1,10 @@
 ﻿using JobNexus.Common.Constant.Messages;
 using JobNexus.Dtos.Auth;
+using JobNexus.Dtos.Email;
 using JobNexus.Dtos.User;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
+using JobNexus.Interfaces;
 using JobNexus.Interfaces.BusinessService;
 using JobNexus.Mappers;
 using Microsoft.AspNetCore.Authorization;
@@ -15,10 +17,12 @@ namespace JobNexus.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IEmailService _emailService;
 
-        public AccountController(IAuthService authService)
+        public AccountController(IAuthService authService, IEmailService emailService)
         {
             _authService = authService;
+            _emailService = emailService;
         }
 
         [AllowAnonymous]
@@ -103,6 +107,18 @@ namespace JobNexus.Controllers
             }
 
             return Ok(null);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("send-email")]
+        public async Task<IActionResult> SendEmail([FromQuery] string email)
+        {
+            var model = new ConfirmEmailDto
+            {
+                Code = "Email confirm code: 123456"
+            };
+            await _emailService.SendEmailAsync(email, "Welcome to JobNexus", "Welcome.cshtml", model);
+            return Ok();
         }
     }
 }
