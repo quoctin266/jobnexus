@@ -8,6 +8,7 @@ namespace JobNexus.Services
         private readonly BlobServiceClient _blobServiceClient;
 
         private readonly string _containerName;
+
         private readonly IConfiguration _configuration;
 
         public BlobStorageService(IConfiguration configuration)

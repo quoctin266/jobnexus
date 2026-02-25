@@ -20,11 +20,11 @@ namespace JobNexus.Services
 
         private readonly EmailClient _emailClient;
 
-        public EmailService(IOptions<ACSSettings> options, EmailClient emailClient,
+        public EmailService(IOptions<ACSSettings> options,
                             ILogger<EmailService> logger, RazorLightEngine razorEngine)
         {
             _settings = options.Value;
-            _emailClient = emailClient;
+            _emailClient = new EmailClient(_settings.ConnectionString);
             _logger = logger;
             _razorEngine = razorEngine;
         }

@@ -14,7 +14,6 @@ namespace JobNexus.Extensions
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<IBlobStorageService, BlobStorageService>();
             services.AddTransient<IEmailService, EmailService>();
-            services.AddSingleton(new EmailClient(configuration["ACS:ConnectionString"]));
             services.AddSingleton(new RazorLightEngineBuilder().UseMemoryCachingProvider().Build());
 
             // business services
