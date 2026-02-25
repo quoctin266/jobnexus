@@ -7,6 +7,8 @@ using MimeKit;
 using RazorLight;
 using RazorLight.Compilation;
 
+using static JobNexus.Helpers.Utils.HelperFunctions;
+
 namespace JobNexus.Services
 {
     public class EmailService : IEmailService
@@ -30,15 +32,10 @@ namespace JobNexus.Services
 
         public async Task SendEmailAsync<T>(string toEmail, string subject, string template, T model)
         {
-            var templatePath = Path.Combine(_env.ContentRootPath, "Templates", template);
-
-            if (!File.Exists(templatePath)) 
-                throw new FileNotFoundException("Email template not found.", template);
-
-            var templateContent = await File.ReadAllTextAsync(templatePath).ConfigureAwait(false);
+            var templateContent = await ReadTemplateAsync(template);
 
             // Use a unique key per template content to allow caching
-            var templateKey = $"tpl-{templatePath.GetHashCode()}";
+            var templateKey = $"tpl-{template.GetHashCode()}";
 
             string htmlBody;
             try
