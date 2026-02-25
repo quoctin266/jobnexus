@@ -9,6 +9,7 @@
 
         // Authentication Messages
         public const string InvalidCredentials = "Invalid email/password";
+        public const string EmailNotVerified = "Unverified email";
 
         // User Messages
         public const string UserNotFound = "User not found with provided id";

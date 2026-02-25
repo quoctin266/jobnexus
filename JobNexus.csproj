@@ -1,5 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
-
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<ItemGroup>
+  <Content Update="Templates\**\*">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+  </Content>
+</ItemGroup>
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
 	<PreserveCompilationContext>true</PreserveCompilationContext>

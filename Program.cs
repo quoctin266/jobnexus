@@ -36,7 +36,9 @@ builder.Services.Configure<FormOptions>(options =>
 });
 
 // register RazorLight engine. Use memory caching provider.
+var templatesRoot = Path.Combine(builder.Environment.ContentRootPath, "Templates");
 builder.Services.AddSingleton(new RazorLightEngineBuilder()
+    .UseFileSystemProject(templatesRoot)
     .UseMemoryCachingProvider()
     .Build());
 

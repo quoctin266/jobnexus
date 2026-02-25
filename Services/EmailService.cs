@@ -11,13 +11,18 @@ namespace JobNexus.Services
 {
     public class EmailService : IEmailService
     {
+        private readonly IWebHostEnvironment _env;
+
         private readonly SmtpSettings _settings;
+
         private readonly ILogger<EmailService> _logger;
+
         private readonly RazorLightEngine _razorEngine;
 
-        public EmailService(IOptions<SmtpSettings> options, ILogger<EmailService> logger, 
-                            RazorLightEngine razorEngine)
+        public EmailService(IWebHostEnvironment env, IOptions<SmtpSettings> options, 
+                            ILogger<EmailService> logger, RazorLightEngine razorEngine)
         {
+            _env = env;
             _settings = options.Value;
             _logger = logger;
             _razorEngine = razorEngine;
@@ -25,8 +30,10 @@ namespace JobNexus.Services
 
         public async Task SendEmailAsync<T>(string toEmail, string subject, string template, T model)
         {
-            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Templates", template);
-            if (!File.Exists(templatePath)) throw new FileNotFoundException("Email template not found.", template);
+            var templatePath = Path.Combine(_env.ContentRootPath, "Templates", template);
+
+            if (!File.Exists(templatePath)) 
+                throw new FileNotFoundException("Email template not found.", template);
 
             var templateContent = await File.ReadAllTextAsync(templatePath).ConfigureAwait(false);
 

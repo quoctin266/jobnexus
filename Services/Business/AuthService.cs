@@ -21,12 +21,15 @@ namespace JobNexus.Services.Business
 
         private readonly ITokenRepository _tokenRepository;
 
+        private readonly IEmailService _emailService;
+
         public AuthService(IAccountRepository accountRepository, ITokenService tokenService,
-                           ITokenRepository tokenRepository)
+                           ITokenRepository tokenRepository, IEmailService emailService)
         {
             _accountRepository = accountRepository;
             _tokenService = tokenService;
             _tokenRepository = tokenRepository;
+            _emailService = emailService;
         }
         public async Task<ServiceResult<TokenResponseDto>> Login(LoginDto loginDto, HttpResponse response)
         {
@@ -36,6 +39,11 @@ namespace JobNexus.Services.Business
                 return ServiceResult<TokenResponseDto>.Failure(StatusCodes.Status401Unauthorized,
                                                               Error.UnAuthorized,
                                                               [ErrorMessages.InvalidCredentials]);
+
+            if(!user.EmailConfirmed)
+                return ServiceResult<TokenResponseDto>.Failure(StatusCodes.Status401Unauthorized,
+                                                              Error.UnAuthorized,
+                                                              [ErrorMessages.EmailNotVerified]);
 
             var passwordCheck = await _accountRepository.CheckPasswordAsync(user, loginDto.Password);
 
@@ -169,6 +177,8 @@ namespace JobNexus.Services.Business
                                                       Error.ServerFailure,
                                                       [ErrorMessages.ServerError]);
             }
+
+            //_emailService.SendEmailAsync(user.Email, "Welcome to JobNexus");
 
             return ServiceResult<AppUser>.Success(user);
         }
