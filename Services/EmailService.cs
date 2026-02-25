@@ -40,7 +40,7 @@ namespace JobNexus.Services
             string htmlBody;
             try
             {
-                htmlBody = await _razorEngine.CompileRenderStringAsync(templateKey, templateContent, model).ConfigureAwait(false);
+                htmlBody = await _razorEngine.CompileRenderStringAsync(templateKey, templateContent, model);
             }
             catch (TemplateCompilationException ex)
             {
@@ -60,16 +60,16 @@ namespace JobNexus.Services
             {
                 using var client = new SmtpClient();
 
-                var secureSocket = _settings.UseSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto;
-                await client.ConnectAsync(_settings.Host, _settings.Port, secureSocket).ConfigureAwait(false);
+                var secureSocket = _settings.UseSsl ? SecureSocketOptions.Auto : SecureSocketOptions.StartTls;
+                await client.ConnectAsync(_settings.Host, _settings.Port, secureSocket);
 
                 if (!string.IsNullOrEmpty(_settings.User))
                 {
-                    await client.AuthenticateAsync(_settings.User, _settings.Password).ConfigureAwait(false);
+                    await client.AuthenticateAsync(_settings.User, _settings.Password);
                 }
 
-                await client.SendAsync(message).ConfigureAwait(false);
-                await client.DisconnectAsync(true).ConfigureAwait(false);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
 
                 _logger.LogInformation("Email sent to {To} with subject {Subject}", toEmail, subject);
             }
