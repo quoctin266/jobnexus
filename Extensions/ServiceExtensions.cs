@@ -1,17 +1,21 @@
-﻿using JobNexus.Interfaces;
+﻿using Azure.Communication.Email;
+using JobNexus.Interfaces;
 using JobNexus.Interfaces.BusinessService;
 using JobNexus.Services;
 using JobNexus.Services.Business;
+using RazorLight;
 
 namespace JobNexus.Extensions
 {
     public static class ServiceExtensions
     {
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<IBlobStorageService, BlobStorageService>();
             services.AddTransient<IEmailService, EmailService>();
+            services.AddSingleton(new EmailClient(configuration["ACS:ConnectionString"]));
+            services.AddSingleton(new RazorLightEngineBuilder().UseMemoryCachingProvider().Build());
 
             // business services
             services.AddScoped<IAuthService, AuthService>();

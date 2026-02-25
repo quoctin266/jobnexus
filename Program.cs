@@ -5,7 +5,6 @@ using JobNexus.Helpers.Filters;
 using JobNexus.Seed;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
-using RazorLight;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,11 +34,6 @@ builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = 10 * 1024 * 1024;
 });
 
-// register RazorLight engine. Use memory caching provider.
-builder.Services.AddSingleton(new RazorLightEngineBuilder()
-    .UseMemoryCachingProvider()
-    .Build());
-
 // Customize error responses
 builder.Services.AddCustomErrorResponse();
 
@@ -62,7 +56,7 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddRepositories();
 
 // Dependency Injection for Services
-builder.Services.AddServices();
+builder.Services.AddServices(builder.Configuration);
 
 // Configure Swagger with Bearer Authentication
 builder.Services.AddSwaggerBearerAuth();

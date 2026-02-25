@@ -6,7 +6,7 @@ namespace JobNexus.Extensions
     {
         public static IServiceCollection AddConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<SmtpSettings>(configuration.GetSection("Smtp"));
+            services.Configure<ACSSettings>(configuration.GetSection("ACS"));
 
             return services;
         }

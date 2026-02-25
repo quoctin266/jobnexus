@@ -1,9 +1,8 @@
-﻿using JobNexus.Helpers.Utils;
+﻿using Azure;
+using Azure.Communication.Email;
+using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces;
-using MailKit.Net.Smtp;
-using MailKit.Security;
 using Microsoft.Extensions.Options;
-using MimeKit;
 using RazorLight;
 using RazorLight.Compilation;
 
@@ -13,19 +12,19 @@ namespace JobNexus.Services
 {
     public class EmailService : IEmailService
     {
-        private readonly IWebHostEnvironment _env;
-
-        private readonly SmtpSettings _settings;
+        private readonly ACSSettings _settings;
 
         private readonly ILogger<EmailService> _logger;
 
         private readonly RazorLightEngine _razorEngine;
 
-        public EmailService(IWebHostEnvironment env, IOptions<SmtpSettings> options, 
+        private readonly EmailClient _emailClient;
+
+        public EmailService(IOptions<ACSSettings> options, EmailClient emailClient,
                             ILogger<EmailService> logger, RazorLightEngine razorEngine)
         {
-            _env = env;
             _settings = options.Value;
+            _emailClient = emailClient;
             _logger = logger;
             _razorEngine = razorEngine;
         }
@@ -48,30 +47,35 @@ namespace JobNexus.Services
                 throw;
             }
 
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_settings.FromName, _settings.FromEmail));
-            message.To.Add(MailboxAddress.Parse(toEmail));
-            message.Subject = subject;
+            var senderAddress = _settings.FromEmail;
 
-            var builder = new BodyBuilder { HtmlBody = htmlBody };
-            message.Body = builder.ToMessageBody();
+            if (string.IsNullOrWhiteSpace(senderAddress))
+            {
+                throw new InvalidOperationException("Sender email is not configured.");
+            }
+
+            // Create EmailContent
+            var content = new EmailContent(subject)
+            {
+                Html = htmlBody
+            };
+
+            var recipients = new EmailRecipients([new EmailAddress(toEmail)]);
+            var emailMessage = new EmailMessage(senderAddress, recipients, content);
 
             try
             {
-                using var client = new SmtpClient();
+                await _emailClient.SendAsync(WaitUntil.Completed, emailMessage);
 
-                var secureSocket = _settings.UseSsl ? SecureSocketOptions.Auto : SecureSocketOptions.StartTls;
-                await client.ConnectAsync(_settings.Host, _settings.Port, secureSocket);
-
-                if (!string.IsNullOrEmpty(_settings.User))
-                {
-                    await client.AuthenticateAsync(_settings.User, _settings.Password);
-                }
-
-                await client.SendAsync(message);
-                await client.DisconnectAsync(true);
-
-                _logger.LogInformation("Email sent to {To} with subject {Subject}", toEmail, subject);
+                // Optionally inspect sendResponse for messageId:
+                _logger.LogInformation("Email sent via ACS to {To} with subject {Subject}",
+                    toEmail, subject);
+            }
+            catch (RequestFailedException ex)
+            {
+                // Azure SDK specific failure
+                _logger.LogError(ex, "ACS Email send failed to {To} with subject {Subject}. ErrorCode: {Code}", toEmail, subject, ex.ErrorCode);
+                throw;
             }
             catch (Exception ex)
             {
