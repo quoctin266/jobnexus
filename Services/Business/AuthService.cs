@@ -1,7 +1,9 @@
 ﻿using JobNexus.Common.Constant;
 using JobNexus.Common.Constant.Messages;
 using JobNexus.Common.Enum;
+using JobNexus.Data;
 using JobNexus.Dtos.Auth;
+using JobNexus.Dtos.Email;
 using JobNexus.Extensions;
 using JobNexus.Helpers.Utils;
 using JobNexus.Interfaces;
@@ -15,6 +17,8 @@ namespace JobNexus.Services.Business
 {
     public class AuthService : IAuthService
     {
+        private readonly ApplicationDBContext _context;
+
         private readonly IAccountRepository _accountRepository;
 
         private readonly ITokenService _tokenService;
@@ -24,8 +28,10 @@ namespace JobNexus.Services.Business
         private readonly IEmailService _emailService;
 
         public AuthService(IAccountRepository accountRepository, ITokenService tokenService,
-                           ITokenRepository tokenRepository, IEmailService emailService)
+                           ITokenRepository tokenRepository, IEmailService emailService,
+                           ApplicationDBContext context)
         {
+            _context = context;
             _accountRepository = accountRepository;
             _tokenService = tokenService;
             _tokenRepository = tokenRepository;
@@ -61,6 +67,7 @@ namespace JobNexus.Services.Business
                 new Token
                 {
                     TokenIdentity = identity,
+                    Purpose = TokenPurpose.LoginSession,
                     AppUserId = user.Id,
                     ExpiresAt = expiresAt,
                 });
@@ -178,9 +185,100 @@ namespace JobNexus.Services.Business
                                                       [ErrorMessages.ServerError]);
             }
 
-            //_emailService.SendEmailAsync(user.Email, "Welcome to JobNexus");
+            var expiresAt = DateTime.UtcNow.AddMinutes(5);
+            var identity = Guid.NewGuid();
+            var token = _tokenService.CreateVerifyToken(identity, expiresAt, user.Email, TokenPurpose.EmailVerification);
+
+            // Store the verify token in the database
+            await _tokenRepository.CreateAsync(
+                new Token
+                {
+                    TokenIdentity = identity,
+                    Purpose = TokenPurpose.EmailVerification,
+                    AppUserId = user.Id,
+                    ExpiresAt = expiresAt,
+                });
+
+            var model = new ConfirmEmailDto 
+            { 
+                ConfirmationUrl = $"https://jobnexus.com.vn/verify-email?token={token}"
+            };
+
+            try
+            {
+                await _emailService.SendEmailAsync(user.Email, "Welcome to JobNexus", "EmailVerification.cshtml", model);
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine("Check exception when sending email: ", ex);
+            }
 
             return ServiceResult<AppUser>.Success(user);
+        }
+
+        public async Task<ServiceResult<AppUser>> VerifyEmail(VerifyEmailDto verifyEmailDto)
+        {
+            var principal = _tokenService.ValidateToken(verifyEmailDto.Token);
+
+            if (principal is null)
+                return ServiceResult<AppUser>.Failure(StatusCodes.Status401Unauthorized,
+                                                              Error.UnAuthorized,
+                                                              [ErrorMessages.InvalidToken]);
+
+            var identityClaim = principal.GetTokenIdentity();
+            var email = principal.GetTokenEmail();
+            var purpose = principal.GetTokenPurpose();
+            
+            if (!Guid.TryParse(identityClaim, out var identity))
+                return ServiceResult<AppUser>.Failure(StatusCodes.Status401Unauthorized,
+                                                              Error.UnAuthorized,
+                                                              [ErrorMessages.InvalidToken]);
+           
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(purpose) || 
+                purpose != TokenPurpose.EmailVerification.ToString())
+                return ServiceResult<AppUser>.Failure(StatusCodes.Status401Unauthorized,
+                                                              Error.UnAuthorized,
+                                                              [ErrorMessages.InvalidToken]);
+           
+            var token = await _tokenRepository.GetByIdentityAsync(identity);
+            if (token is null || token.ExpiresAt <= DateTimeOffset.UtcNow || 
+                token.Purpose != TokenPurpose.EmailVerification)
+                return ServiceResult<AppUser>.Failure(StatusCodes.Status401Unauthorized,
+                                                              Error.UnAuthorized,
+                                                              [ErrorMessages.InvalidToken]);
+
+            var user = await _accountRepository.GetByIdAsync(token.AppUserId);
+            if (user is null)
+                return ServiceResult<AppUser>.Failure(StatusCodes.Status404NotFound,
+                                                              Error.NotFound,
+                                                              [ErrorMessages.UserNotFound]);
+
+            if(user.Email != email)
+                return ServiceResult<AppUser>.Failure(StatusCodes.Status401Unauthorized,
+                                                              Error.UnAuthorized,
+                                                              [ErrorMessages.InvalidToken]);
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                await _tokenRepository.DeleteAsync(token);
+                await _accountRepository.ConfirmEmailAsync(user);
+                
+                await transaction.CommitAsync();
+
+                return ServiceResult<AppUser>.Success(user);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+
+                await transaction.RollbackAsync();
+            }
+
+            return ServiceResult<AppUser>.Failure(StatusCodes.Status500InternalServerError,
+                                                  Error.ServerFailure,
+                                                  [ErrorMessages.ServerError]);
         }
     }
 }

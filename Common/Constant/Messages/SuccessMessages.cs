@@ -7,6 +7,7 @@
         public const string RegisterSuccess = "Register successfully";
         public const string RefreshSuccess = "Get new tokens successfully";
         public const string LogoutSuccess = "Logout successfully";
+        public const string VerifyEmailSuccess = "Verify email successfully";
 
         // Company Employee Messages
         public const string CreateEmployee = "Create company employee successfully";

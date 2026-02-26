@@ -15,6 +15,8 @@ namespace JobNexus.Interfaces.Repository
 
         Task<IdentityResult> UpdateUserRoleAsync(AppUser user, Role role);
 
+        Task<AppUser> ConfirmEmailAsync(AppUser user);
+
         Task<string> GetUserRoleAsync(AppUser user);
 
         Task<AppUser?> GetByIdAsync(string id);

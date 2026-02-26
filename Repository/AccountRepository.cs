@@ -76,6 +76,15 @@ namespace JobNexus.Repository
             return user;
         }
 
+        public async Task<AppUser> ConfirmEmailAsync(AppUser user)
+        {
+            user.EmailConfirmed = true;
+
+            await _userManager.UpdateAsync(user);
+
+            return user;
+        }
+
         public async Task<IdentityResult> DeleteAsync(AppUser user)
         {
             return await _userManager.DeleteAsync(user);

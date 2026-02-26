@@ -14,5 +14,15 @@ namespace JobNexus.Extensions
             return token.FindFirstValue("tokenIdentity");
         }
 
+        public static string? GetTokenEmail(this ClaimsPrincipal token)
+        {
+            return token.FindFirstValue(ClaimTypes.Email);
+        }
+
+        public static string? GetTokenPurpose(this ClaimsPrincipal token)
+        {
+            return token.FindFirstValue("purpose");
+        }
+
     }
 }
