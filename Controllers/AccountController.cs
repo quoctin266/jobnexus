@@ -133,14 +133,23 @@ namespace JobNexus.Controllers
 
         [AllowAnonymous]
         [HttpPost("send-email")]
-        public async Task<IActionResult> SendEmail([FromQuery] string email)
+        [ResponseMessage(message: SuccessMessages.SendEmailSuccess)]
+        public async Task<ActionResult<ApiDataResponse<VoidType>>> SendEmail([FromBody] SendVerificationDto sendVerificationDto)
         {
-            var model = new ConfirmEmailDto
+            var result = await _authService.SendVerification(sendVerificationDto);
+
+            if (!result.IsSuccess)
             {
-                ConfirmationUrl = "https://www.youtube.com"
-            };
-            await _emailService.SendEmailAsync(email, "Welcome to JobNexus", "EmailVerification.cshtml", model);
-            return Ok();
+                var response = new ErrorResponse(result.Error, result.Messages);
+
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status404NotFound => NotFound(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+                };
+            }
+
+            return Ok(null);
         }
     }
 }

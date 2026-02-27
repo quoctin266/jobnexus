@@ -13,6 +13,7 @@
 
         // User Messages
         public const string UserNotFound = "User not found with provided id";
+        public const string EmailNotFound = "User not found with provided email";
 
         // Company Employee Messages
         public const string EmployeeNotFound = "Employee not found with provided id";

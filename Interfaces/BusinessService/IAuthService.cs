@@ -15,5 +15,7 @@ namespace JobNexus.Interfaces.BusinessService
         Task<ServiceResult<VoidType>> Logout(HttpRequest request, HttpResponse response);
 
         Task<ServiceResult<AppUser>> VerifyEmail(VerifyEmailDto verifyEmailDto);
+
+        Task<ServiceResult<VoidType>> SendVerification(SendVerificationDto sendVerificationDto);
     }
 }

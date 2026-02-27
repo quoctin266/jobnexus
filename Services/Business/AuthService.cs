@@ -10,7 +10,7 @@ using JobNexus.Interfaces;
 using JobNexus.Interfaces.BusinessService;
 using JobNexus.Interfaces.Repository;
 using JobNexus.Models;
-
+using Microsoft.Extensions.Options;
 using static JobNexus.Helpers.Utils.HelperFunctions;
 
 namespace JobNexus.Services.Business
@@ -27,15 +27,18 @@ namespace JobNexus.Services.Business
 
         private readonly IEmailService _emailService;
 
+        private readonly FrontendSettings _frontendSettings;
+
         public AuthService(IAccountRepository accountRepository, ITokenService tokenService,
                            ITokenRepository tokenRepository, IEmailService emailService,
-                           ApplicationDBContext context)
+                           ApplicationDBContext context, IOptions<FrontendSettings> options)
         {
             _context = context;
             _accountRepository = accountRepository;
             _tokenService = tokenService;
             _tokenRepository = tokenRepository;
             _emailService = emailService;
+            _frontendSettings = options.Value;
         }
         public async Task<ServiceResult<TokenResponseDto>> Login(LoginDto loginDto, HttpResponse response)
         {
@@ -201,12 +204,13 @@ namespace JobNexus.Services.Business
 
             var model = new ConfirmEmailDto 
             { 
-                ConfirmationUrl = $"https://jobnexus.com.vn/verify-email?token={token}"
+                ConfirmationUrl = $"{_frontendSettings.BaseUrl}/{_frontendSettings.VerifyEmailPath}?token={token}"
             };
 
             try
             {
-                await _emailService.SendEmailAsync(user.Email, "Welcome to JobNexus", "EmailVerification.cshtml", model);
+                await _emailService.SendEmailAsync(user.Email, "Welcome to JobNexus", 
+                                                   "EmailVerification.cshtml", model);
             }
             catch (Exception ex) 
             {
@@ -214,6 +218,79 @@ namespace JobNexus.Services.Business
             }
 
             return ServiceResult<AppUser>.Success(user);
+        }
+
+        public async Task<ServiceResult<VoidType>> SendVerification(SendVerificationDto sendVerificationDto)
+        {
+            var user = await _accountRepository.GetByEmailAsync(sendVerificationDto.Email);
+            if(user is null)
+                return ServiceResult<VoidType>.Failure(StatusCodes.Status404NotFound,
+                                                       Error.NotFound,
+                                                       [ErrorMessages.EmailNotFound]);
+
+            var expiresAt = DateTime.UtcNow.AddMinutes(5);
+            var identity = Guid.NewGuid();
+
+            var currentToken = await _tokenRepository.GetByUserAndPurposeAsync(user.Id, sendVerificationDto.Purpose);
+            if (currentToken is null)
+            {
+                await _tokenRepository.CreateAsync(
+                     new Token
+                     {
+                         TokenIdentity = identity,
+                         Purpose = sendVerificationDto.Purpose,
+                         AppUserId = user.Id,
+                         ExpiresAt = expiresAt,
+                     });
+            }
+            else
+            {
+                await _tokenRepository.UpdateAsync(currentToken, identity, expiresAt);
+            }
+
+            var token = _tokenService.CreateVerifyToken(identity, expiresAt,
+                                                        sendVerificationDto.Email, sendVerificationDto.Purpose);
+
+            var subject = "";
+            var templates = "";
+            object model = new {};
+
+            if (sendVerificationDto.Purpose == TokenPurpose.EmailVerification)
+            {
+                subject = "Welcome to JobNexus";
+                templates = "EmailVerification.cshtml";
+                model = new ConfirmEmailDto
+                {
+                    ConfirmationUrl = $"{_frontendSettings.BaseUrl}/{_frontendSettings.VerifyEmailPath}?token={token}"
+                };
+            }
+
+            if(sendVerificationDto.Purpose == TokenPurpose.PasswordReset)
+            {
+                subject = "Reset your password";
+                templates = "PasswordReset.cshtml";
+                model = new PasswordResetDto
+                {
+                    ResetUrl = $"{_frontendSettings.BaseUrl}/{_frontendSettings.PasswordResetPath}?token={token}",
+                    Username = user.UserName ?? ""
+                };
+            }
+
+            try
+            {
+                await _emailService.SendEmailAsync(sendVerificationDto.Email, subject,
+                                                   templates, model);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Check exception when sending email: ", ex);
+
+                return ServiceResult<VoidType>.Failure(StatusCodes.Status500InternalServerError,
+                                              Error.ServerFailure,
+                                              [ErrorMessages.ServerError]);
+            }
+
+            return ServiceResult<VoidType>.Success(new VoidType());
         }
 
         public async Task<ServiceResult<AppUser>> VerifyEmail(VerifyEmailDto verifyEmailDto)

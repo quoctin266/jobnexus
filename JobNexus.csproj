@@ -12,6 +12,7 @@
   <ItemGroup>
 	<EmbeddedResource Include="Templates\**\*.cshtml" />
 	<Content Remove="Templates\EmailVerification.cshtml" />
+	<Content Remove="Templates\PasswordReset.cshtml" />
 	<PackageReference Include="Azure.Communication.Email" Version="1.1.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
     <PackageReference Include="FluentValidation" Version="12.1.1" />
