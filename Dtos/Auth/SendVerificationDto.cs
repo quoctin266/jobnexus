@@ -8,7 +8,7 @@ namespace JobNexus.Dtos.Auth
     {
         [Required]
         [EmailAddress]
-        [MaxLength(20, ErrorMessage = ValidationMessages.EmailMaxLength)]
+        [MaxLength(50, ErrorMessage = ValidationMessages.EmailMaxLength)]
         public string Email { get; init; } = "";
 
         [Required]

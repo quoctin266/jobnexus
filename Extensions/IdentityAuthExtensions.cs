@@ -18,7 +18,8 @@ namespace JobNexus.Extensions
                 options.User.RequireUniqueEmail = true;
             })
             .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDBContext>();
+            .AddEntityFrameworkStores<ApplicationDBContext>()
+            .AddTokenProvider<DataProtectorTokenProvider<AppUser>>(TokenOptions.DefaultProvider);
 
             return services;
         }

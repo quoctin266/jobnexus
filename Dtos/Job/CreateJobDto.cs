@@ -11,7 +11,7 @@ namespace JobNexus.Dtos.Job
         public string Name { get; init; } = "";
 
         [Required]
-        [MaxLength(20, ErrorMessage = ValidationMessages.JobNameMaxLength)]
+        [MaxLength(50, ErrorMessage = ValidationMessages.JobNameMaxLength)]
         public string Location { get; init; } = "";
 
         [Required]
@@ -27,7 +27,7 @@ namespace JobNexus.Dtos.Job
         public int Quantity { get; init; }
 
         [Required]
-        [MaxLength(20, ErrorMessage = ValidationMessages.JobLevelMaxLength)]
+        [MaxLength(50, ErrorMessage = ValidationMessages.JobLevelMaxLength)]
         public string Level { get; init; } = "";
 
         [Required]

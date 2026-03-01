@@ -16,6 +16,8 @@ namespace JobNexus.Interfaces.BusinessService
 
         Task<ServiceResult<AppUser>> VerifyEmail(VerifyEmailDto verifyEmailDto);
 
+        Task<ServiceResult<AppUser>> ResetPassword(ResetPasswordDto resetPasswordDto);
+
         Task<ServiceResult<VoidType>> SendVerification(SendVerificationDto sendVerificationDto);
     }
 }

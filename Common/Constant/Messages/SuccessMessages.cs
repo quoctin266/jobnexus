@@ -9,6 +9,7 @@
         public const string LogoutSuccess = "Logout successfully";
         public const string SendEmailSuccess = "Send email successfully";
         public const string VerifyEmailSuccess = "Verify email successfully";
+        public const string ResetPasswordSuccess = "Reset password successfully";
 
         // Company Employee Messages
         public const string CreateEmployee = "Create company employee successfully";

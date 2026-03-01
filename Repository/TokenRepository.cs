@@ -1,9 +1,7 @@
-﻿using JobNexus.Common.Enum;
-using JobNexus.Data;
+﻿using JobNexus.Data;
 using JobNexus.Interfaces.Repository;
 using JobNexus.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Principal;
 
 namespace JobNexus.Repository
 {
@@ -34,12 +32,6 @@ namespace JobNexus.Repository
         public async Task<Token?> GetByIdentityAsync(Guid identity)
         {
             return await _context.Tokens.FirstOrDefaultAsync(t => t.TokenIdentity == identity);
-        }
-
-        public async Task<Token?> GetByUserAndPurposeAsync(string userId, TokenPurpose purpose)
-        {
-            return await _context.Tokens.FirstOrDefaultAsync(t => t.AppUserId == userId && 
-                                                                  t.Purpose == purpose);
         }
 
         public async Task<Token> UpdateAsync(Token token, Guid newIdentity, DateTimeOffset newExpiresAt)

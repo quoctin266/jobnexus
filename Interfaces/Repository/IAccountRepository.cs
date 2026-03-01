@@ -15,7 +15,9 @@ namespace JobNexus.Interfaces.Repository
 
         Task<IdentityResult> UpdateUserRoleAsync(AppUser user, Role role);
 
-        Task<AppUser> ConfirmEmailAsync(AppUser user);
+        Task<IdentityResult> ConfirmEmailAsync(AppUser user, string token);
+
+        Task<IdentityResult> ResetPasswordAsync(AppUser user, string token, string newPassword);
 
         Task<string> GetUserRoleAsync(AppUser user);
 
@@ -24,5 +26,9 @@ namespace JobNexus.Interfaces.Repository
         Task<AppUser?> GetByEmailAsync(string email);
 
         Task<SignInResult> CheckPasswordAsync(AppUser user, string password);
+
+        Task<IdentityResult> InvalidateTokensAsync(AppUser user);
+
+        Task<string> GenerateTokenAsync(AppUser user, TokenPurpose purpose);
     }
 }

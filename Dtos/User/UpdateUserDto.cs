@@ -8,7 +8,7 @@ namespace JobNexus.Dtos.User
     public record UpdateUserDto
     {
         [Required]
-        [MaxLength(20, ErrorMessage = ValidationMessages.UsernameMaxLength)]
+        [MaxLength(50, ErrorMessage = ValidationMessages.UsernameMaxLength)]
         public string Username { get; init; } = "";
 
         [Required]

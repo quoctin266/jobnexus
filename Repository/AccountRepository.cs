@@ -31,11 +31,6 @@ namespace JobNexus.Repository
             return await _userManager.AddToRoleAsync(user, role.ToString());
         }
 
-        public async Task<IdentityResult> RemoveRoleFromUserAsync(AppUser user, IEnumerable<string> roles)
-        {
-            return await _userManager.RemoveFromRolesAsync(user, roles);
-        }
-
         public async Task<string> GetUserRoleAsync(AppUser user)
         {
             var roles = await _userManager.GetRolesAsync(user);
@@ -76,18 +71,34 @@ namespace JobNexus.Repository
             return user;
         }
 
-        public async Task<AppUser> ConfirmEmailAsync(AppUser user)
-        {
-            user.EmailConfirmed = true;
-
-            await _userManager.UpdateAsync(user);
-
-            return user;
-        }
-
         public async Task<IdentityResult> DeleteAsync(AppUser user)
         {
             return await _userManager.DeleteAsync(user);
+        }
+
+        public async Task<IdentityResult> InvalidateTokensAsync(AppUser user)
+        {
+            return await _userManager.UpdateSecurityStampAsync(user);
+        }
+
+        public async Task<string> GenerateTokenAsync(AppUser user, TokenPurpose purpose)
+        {
+            if(purpose == TokenPurpose.EmailVerification)
+            {
+                return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            }
+
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+
+        public async Task<IdentityResult> ConfirmEmailAsync(AppUser user, string token)
+        {
+            return await _userManager.ConfirmEmailAsync(user, token);
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(AppUser user, string token, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, token, newPassword);
         }
     }
 }

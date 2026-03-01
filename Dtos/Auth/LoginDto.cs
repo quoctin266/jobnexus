@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using JobNexus.Common.Constant.Messages;
+using System.ComponentModel.DataAnnotations;
 
 namespace JobNexus.Dtos.Auth
 {
@@ -6,6 +7,7 @@ namespace JobNexus.Dtos.Auth
     {
         [Required]
         [EmailAddress]
+        [MaxLength(50, ErrorMessage = ValidationMessages.EmailMaxLength)]
         public string Email { get; init; } = "";
 
         [Required]

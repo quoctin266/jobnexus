@@ -1,5 +1,4 @@
-﻿using JobNexus.Common.Enum;
-using JobNexus.Interfaces;
+﻿using JobNexus.Interfaces;
 
 namespace JobNexus.Models
 {
@@ -8,8 +7,6 @@ namespace JobNexus.Models
         public int Id { get; set; }
 
         public Guid TokenIdentity { get; set; }
-
-        public TokenPurpose Purpose { get; set; }
 
         public string AppUserId { get; set; } = "";
 

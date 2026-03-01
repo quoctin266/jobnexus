@@ -6,7 +6,7 @@ namespace JobNexus.Dtos.Skill
 {
     public record SkillQueryDto : BaseQueryDto
     {
-        [MaxLength(20, ErrorMessage = ValidationMessages.SkillNameMaxLength)]
+        [MaxLength(50, ErrorMessage = ValidationMessages.SkillNameMaxLength)]
         public string? Name { get; init; }
 
         public bool? IsActive { get; init; }

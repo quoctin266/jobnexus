@@ -1,5 +1,4 @@
-﻿using JobNexus.Common.Enum;
-using JobNexus.Interfaces;
+﻿using JobNexus.Interfaces;
 using JobNexus.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -61,32 +60,6 @@ namespace JobNexus.Services
             var claims = new List<Claim>
             {
                 new("tokenIdentity", tokenIdentity.ToString()),
-            };
-
-            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                SigningCredentials = creds,
-                Issuer = _configuration["JWT:Issuer"],
-                Audience = _configuration["JWT:Audience"],
-                Expires = expiresAt
-            };
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
-        }
-
-        public string CreateVerifyToken(Guid tokenIdentity, DateTime expiresAt, string email, TokenPurpose purpose)
-        {
-            var claims = new List<Claim>
-            {
-                new("tokenIdentity", tokenIdentity.ToString()),
-                new(ClaimTypes.Email, email),
-                new("purpose", purpose.ToString())
             };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);

@@ -11,7 +11,7 @@ namespace JobNexus.Dtos.Job
         [MaxLength(50, ErrorMessage = ValidationMessages.JobNameMaxLength)]
         public string? Name { get; init; }
 
-        [MaxLength(20, ErrorMessage = ValidationMessages.JobLocationMaxLength)]
+        [MaxLength(50, ErrorMessage = ValidationMessages.JobLocationMaxLength)]
         public string? Location { get; init; }
 
         [Range(1_000_000, 100_000_000, ErrorMessage = ValidationMessages.JobSalaryRange)]
@@ -23,7 +23,7 @@ namespace JobNexus.Dtos.Job
         [Range(1, 50, ErrorMessage = ValidationMessages.JobQuantityRange)]
         public int? Quantity { get; init; }
 
-        [MaxLength(20, ErrorMessage = ValidationMessages.JobLevelMaxLength)]
+        [MaxLength(50, ErrorMessage = ValidationMessages.JobLevelMaxLength)]
         public string? Level { get; init; } = "";
 
         [Iso8601Date(ErrorMessage = ValidationMessages.DoBFormat)]

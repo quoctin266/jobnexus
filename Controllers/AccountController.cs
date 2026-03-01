@@ -1,14 +1,15 @@
 ﻿using JobNexus.Common.Constant.Messages;
 using JobNexus.Dtos.Auth;
-using JobNexus.Dtos.Email;
 using JobNexus.Dtos.User;
 using JobNexus.Helpers.Attributes;
 using JobNexus.Helpers.Utils;
-using JobNexus.Interfaces;
 using JobNexus.Interfaces.BusinessService;
 using JobNexus.Mappers;
+using JobNexus.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 
 namespace JobNexus.Controllers
 {
@@ -17,12 +18,12 @@ namespace JobNexus.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IEmailService _emailService;
+        private readonly UserManager<AppUser> _userManager;
 
-        public AccountController(IAuthService authService, IEmailService emailService)
+        public AccountController(IAuthService authService, UserManager<AppUser> userManager)
         {
             _authService = authService;
-            _emailService = emailService;
+            _userManager = userManager;
         }
 
         [AllowAnonymous]
@@ -110,7 +111,7 @@ namespace JobNexus.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("verify-email")]
+        [HttpPut("verify-email")]
         [ResponseMessage(message: SuccessMessages.VerifyEmailSuccess)]
         public async Task<ActionResult<ApiDataResponse<UserSummaryDto>>> VerifyEmail([FromBody] VerifyEmailDto verifyEmailDto)
         {
@@ -122,8 +123,9 @@ namespace JobNexus.Controllers
 
                 return result.StatusCode switch
                 {
-                    StatusCodes.Status401Unauthorized => Unauthorized(response),
+                    StatusCodes.Status400BadRequest => BadRequest(response),
                     StatusCodes.Status404NotFound => NotFound(response),
+                    StatusCodes.Status409Conflict => Conflict(response),
                     _ => StatusCode(StatusCodes.Status500InternalServerError, response)
                 };
             }
@@ -145,11 +147,35 @@ namespace JobNexus.Controllers
                 return result.StatusCode switch
                 {
                     StatusCodes.Status404NotFound => NotFound(response),
+                    StatusCodes.Status409Conflict => Conflict(response),
                     _ => StatusCode(StatusCodes.Status500InternalServerError, response)
                 };
             }
 
             return Ok(null);
+        }
+
+        [AllowAnonymous]
+        [HttpPut("reset-password")]
+        [ResponseMessage(message: SuccessMessages.ResetPasswordSuccess)]
+        public async Task<ActionResult<ApiDataResponse<VoidType>>> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
+        {
+            var result = await _authService.ResetPassword(resetPasswordDto);
+
+            if (!result.IsSuccess)
+            {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status400BadRequest => BadRequest(response),
+                    StatusCodes.Status404NotFound => NotFound(response),
+                    StatusCodes.Status409Conflict => Conflict(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+                };
+            }
+
+            return Ok(result.Value?.ToUserSummaryDto());
         }
     }
 }

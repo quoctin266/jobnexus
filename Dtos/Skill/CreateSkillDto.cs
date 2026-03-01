@@ -6,7 +6,7 @@ namespace JobNexus.Dtos.Skill
     public record CreateSkillDto()
     {
         [Required]
-        [MaxLength(20, ErrorMessage = ValidationMessages.SkillNameMaxLength)]
+        [MaxLength(50, ErrorMessage = ValidationMessages.SkillNameMaxLength)]
         public string Name { get; init; } = "";
     }
 }
