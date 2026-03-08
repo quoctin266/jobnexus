@@ -11,6 +11,7 @@
         public const string InvalidCredentials = "Invalid email/password";
         public const string EmailNotVerified = "Unverified email";
         public const string EmailAlreadyVerified = "Email already verified";
+        public const string ExternalLoginFailed = "Unable to load external login information";
 
         // User Messages
         public const string UserNotFound = "User not found with provided id";

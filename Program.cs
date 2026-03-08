@@ -43,14 +43,11 @@ builder.Services.AddIdentityAuth();
 // Enforce Global Authentication
 builder.Services.AddGlobalAuth();
 
-// Configure Authorization Policies
-builder.Services.AddAuthPolicy();
-
 // Register Authorization Handlers
 builder.Services.AddAuthHandler();
 
 // Configure JWT Authentication
-builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthenticationOptions(builder.Configuration);
 
 // Dependency Injection for Repositories
 builder.Services.AddRepositories();

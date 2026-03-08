@@ -1,7 +1,6 @@
 ﻿using JobNexus.Common.Constant;
 using JobNexus.Common.Constant.Messages;
 using JobNexus.Common.Enum;
-using JobNexus.Data;
 using JobNexus.Dtos.Auth;
 using JobNexus.Dtos.Email;
 using JobNexus.Extensions;
@@ -178,6 +177,7 @@ namespace JobNexus.Services.Business
             }
            
             var roleResult = await _accountRepository.UpdateUserRoleAsync(user, Role.User);
+
             if (!roleResult.Succeeded)
             {
                 return ServiceResult<AppUser>.Failure(StatusCodes.Status500InternalServerError,
@@ -324,8 +324,6 @@ namespace JobNexus.Services.Business
                                                               Error.ResourceConflict,
                                                               [ErrorMessages.EmailNotVerified]);
             
-            //var passwordCheck = await _accountRepository.CheckPasswordAsync(user, resetPasswordDto.NewPassword);
-
             var decodedToken = WebUtility.UrlDecode(resetPasswordDto.Token);
 
             var resetResult = await _accountRepository.ResetPasswordAsync(user, decodedToken, resetPasswordDto.NewPassword);
@@ -341,6 +339,72 @@ namespace JobNexus.Services.Business
                                                   [.. result.Errors.Select(e => e.Description)]);
 
             return ServiceResult<AppUser>.Success(user);
+        }
+
+        public async Task<ServiceResult<TokenResponseDto>> GoogleLogin(HttpResponse response)
+        {
+            var loginInfo = await _accountRepository.GetLoginInfo();
+
+            if(loginInfo is null)
+                return ServiceResult<TokenResponseDto>.Failure(StatusCodes.Status401Unauthorized,
+                                                              Error.UnAuthorized,
+                                                              [ErrorMessages.ExternalLoginFailed]);
+
+            var email = loginInfo.Principal.GetEmail();
+
+            if(email is null)
+                return ServiceResult<TokenResponseDto>.Failure(StatusCodes.Status401Unauthorized,
+                                                              Error.UnAuthorized,
+                                                              [ErrorMessages.ExternalLoginFailed]);
+
+            // Find or create local user
+            var user = await _accountRepository.GetByEmailAsync(email);
+            if (user is null)
+            {
+                user = new AppUser
+                {
+                    Email = email,
+                    UserName = email,
+                    EmailConfirmed = true // Google-provided email is considered verified
+                };
+
+                var createResult = await _accountRepository.CreateUserAsync(user, null);
+
+                if (!createResult.Succeeded)
+                {
+                    var messages = createResult.Errors.Select(e => e.Description).ToList();
+
+                    return ServiceResult<TokenResponseDto>.Failure(StatusCodes.Status500InternalServerError,
+                                                                   Error.ServerFailure, messages);
+                }
+
+                var roleResult = await _accountRepository.UpdateUserRoleAsync(user, Role.User);
+
+                if (!roleResult.Succeeded)
+                {
+                    var messages = roleResult.Errors.Select(e => e.Description).ToList();
+
+                    return ServiceResult<TokenResponseDto>.Failure(StatusCodes.Status500InternalServerError,
+                                                                  Error.ServerFailure, messages);
+                }
+            }
+
+            var expiresAt = DateTime.UtcNow.AddDays(7);
+            var identity = Guid.NewGuid();
+            var refreshToken = _tokenService.CreateRefreshToken(identity, expiresAt);
+
+            await _tokenRepository.CreateAsync(new Token
+            {
+                TokenIdentity = identity,
+                AppUserId = user.Id,
+                ExpiresAt = expiresAt,
+            });
+
+            var accessToken = await _tokenService.CreateAccessToken(user);
+
+            SetRefreshTokenCookie(response, refreshToken, expiresAt.AddHours(-1));
+           
+            return ServiceResult<TokenResponseDto>.Success(new TokenResponseDto(accessToken = WebUtility.UrlEncode(accessToken)));
         }
     }
 }

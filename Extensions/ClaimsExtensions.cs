@@ -4,25 +4,19 @@ namespace JobNexus.Extensions
 {
     public static class ClaimsExtensions
     {
-        public static string? GetUserId(this ClaimsPrincipal user)
+        public static string? GetUserId(this ClaimsPrincipal claims)
         {
-            return user.FindFirstValue("id");
+            return claims.FindFirstValue("id");
         }
 
-        public static string? GetTokenIdentity(this ClaimsPrincipal token)
+        public static string? GetTokenIdentity(this ClaimsPrincipal claims)
         {
-            return token.FindFirstValue("tokenIdentity");
+            return claims.FindFirstValue("tokenIdentity");
         }
 
-        public static string? GetTokenEmail(this ClaimsPrincipal token)
+        public static string? GetEmail(this ClaimsPrincipal claims)
         {
-            return token.FindFirstValue(ClaimTypes.Email);
+            return claims.FindFirstValue(ClaimTypes.Email);
         }
-
-        public static string? GetTokenPurpose(this ClaimsPrincipal token)
-        {
-            return token.FindFirstValue("purpose");
-        }
-
     }
 }

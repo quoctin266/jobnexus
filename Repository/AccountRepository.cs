@@ -38,8 +38,11 @@ namespace JobNexus.Repository
             return roles[0];
         }
 
-        public async Task<IdentityResult> CreateUserAsync(AppUser user, string password)
+        public async Task<IdentityResult> CreateUserAsync(AppUser user, string? password)
         {
+            if(password is null)
+                return await _userManager.CreateAsync(user);
+
             return await _userManager.CreateAsync(user, password);
         }
 
@@ -99,6 +102,11 @@ namespace JobNexus.Repository
         public async Task<IdentityResult> ResetPasswordAsync(AppUser user, string token, string newPassword)
         {
             return await _userManager.ResetPasswordAsync(user, token, newPassword);
+        }
+
+        public async Task<ExternalLoginInfo?> GetLoginInfo()
+        {
+            return await _signInManager.GetExternalLoginInfoAsync();
         }
     }
 }

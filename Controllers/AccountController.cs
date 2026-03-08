@@ -9,7 +9,8 @@ using JobNexus.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
+using NpgsqlTypes;
+using System.Text.Json;
 
 namespace JobNexus.Controllers
 {
@@ -18,12 +19,14 @@ namespace JobNexus.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly LinkGenerator _linkGenerator;
 
-        public AccountController(IAuthService authService, UserManager<AppUser> userManager)
+        public AccountController(IAuthService authService, SignInManager<AppUser> signInManager, LinkGenerator linkGenerator)
         {
             _authService = authService;
-            _userManager = userManager;
+            _signInManager = signInManager;
+            _linkGenerator = linkGenerator;
         }
 
         [AllowAnonymous]
@@ -66,6 +69,39 @@ namespace JobNexus.Controllers
             }
 
             return StatusCode(StatusCodes.Status201Created, result.Value);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("google/login")]
+        public ActionResult GoogleLogin([FromQuery] string returnUrl)
+        {
+            var redirectUrl = _linkGenerator.GetUriByName(HttpContext, "GoogleCallback", new { returnUrl });
+
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+
+            return Challenge(properties, "Google");
+        }
+
+        [AllowAnonymous]
+        [HttpGet("google/callback", Name = "GoogleCallback")]
+        public async Task<ActionResult> GoogleCallback([FromQuery] string returnUrl)
+        {
+            var result = await _authService.GoogleLogin(Response);
+
+            if (!result.IsSuccess)
+            {
+                var response = new ErrorResponse(result.Error, result.Messages);
+
+                return result.StatusCode switch
+                {
+                    StatusCodes.Status401Unauthorized => Unauthorized(response),
+                    _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+                };
+            }
+
+            var accessToken = result.Value?.AccessToken;
+
+            return Redirect(returnUrl + $"?accessToken={accessToken}");
         }
 
         [AllowAnonymous]

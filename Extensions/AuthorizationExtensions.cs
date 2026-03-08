@@ -17,14 +17,6 @@ namespace JobNexus.Extensions
             return services;
         }
 
-        public static IServiceCollection AddAuthPolicy(this IServiceCollection services)
-        {
-            //services.AddAuthorizationBuilder()
-            //        .AddPolicy(Policy.ResourceOwner, policy => policy.Requirements.Add(new ResourceOwnerRequirement()));
-
-            return services;
-        }
-
         public static IServiceCollection AddAuthHandler(this IServiceCollection services)
         {
             services.AddSingleton<IAuthorizationHandler, CompanyRequestOwnerHandler>();

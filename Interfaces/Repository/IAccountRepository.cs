@@ -7,7 +7,7 @@ namespace JobNexus.Interfaces.Repository
 {
     public interface IAccountRepository
     {
-        Task<IdentityResult> CreateUserAsync(AppUser user, string password);
+        Task<IdentityResult> CreateUserAsync(AppUser user, string? password);
 
         Task<AppUser> UpdateUserAsync(AppUser user, UpdateUserDto updateUserDto);
 
@@ -30,5 +30,7 @@ namespace JobNexus.Interfaces.Repository
         Task<IdentityResult> InvalidateTokensAsync(AppUser user);
 
         Task<string> GenerateTokenAsync(AppUser user, TokenPurpose purpose);
+
+        Task<ExternalLoginInfo?> GetLoginInfo();
     }
 }
