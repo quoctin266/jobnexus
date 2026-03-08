@@ -4,6 +4,7 @@ using JobNexus.Extensions;
 using JobNexus.Helpers.Filters;
 using JobNexus.Seed;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -36,6 +37,13 @@ builder.Services.Configure<FormOptions>(options =>
 
 // Customize error responses
 builder.Services.AddCustomErrorResponse();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor |
+        ForwardedHeaders.XForwardedProto;
+});
 
 // Configure Identity   
 builder.Services.AddIdentityAuth();
@@ -73,6 +81,8 @@ app.UseSwaggerUI(options =>
 app.UseHttpsRedirection();
 
 app.UseCors();
+
+app.UseForwardedHeaders();
 
 app.UseAuthentication();
 
